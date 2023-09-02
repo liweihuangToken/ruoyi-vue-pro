@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.infra.service.file;
 
-import cn.iocoder.yudao.module.infra.controller.admin.file.vo.file.FilePageReqVO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.infra.controller.admin.file.vo.file.FilePageReqVO;
 import cn.iocoder.yudao.module.infra.dal.dataobject.file.FileDO;
+import lombok.SneakyThrows;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 文件 Service 接口
@@ -28,6 +30,10 @@ public interface FileService {
      * @return 文件路径
      */
     String createFile(String name, String path, byte[] content);
+
+    @SneakyThrows
+    @Transactional(rollbackFor = Exception.class)
+    String createFileOtherTransaction(String name, String path, byte[] content);
 
     /**
      * 删除文件

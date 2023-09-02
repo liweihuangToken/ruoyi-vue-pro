@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.system.api.dict;
 import cn.iocoder.yudao.module.system.api.dict.dto.DictDataRespDTO;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * 字典数据 API 接口
@@ -39,4 +40,11 @@ public interface DictDataApi {
      */
     DictDataRespDTO parseDictData(String type, String label);
 
+    /**
+     * 解析获得指定的字典数据，从缓存中
+     *
+     * @param type 字典类型
+     * @return 字典数据
+     */
+    List<DictDataRespDTO> getDictDataList(String type);
 }

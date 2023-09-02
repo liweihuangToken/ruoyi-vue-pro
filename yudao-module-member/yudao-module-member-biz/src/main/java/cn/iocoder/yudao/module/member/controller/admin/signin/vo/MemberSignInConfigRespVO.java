@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.member.controller.admin.signin.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - 积分签到规则 Response VO")

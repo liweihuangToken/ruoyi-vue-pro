@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.system.controller.admin.mail.vo.log;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - 邮件日志 Response VO")

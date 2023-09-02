@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.member.controller.admin.point.vo.recrod;
 
-import lombok.*;
-import io.swagger.v3.oas.annotations.media.Schema;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Schema(description = "管理后台 - 用户积分记录分页 Request VO")
 @Data

@@ -6,8 +6,8 @@ import cn.iocoder.yudao.module.member.controller.app.social.vo.AppSocialUserBind
 import cn.iocoder.yudao.module.member.controller.app.social.vo.AppSocialUserUnbindReqVO;
 import cn.iocoder.yudao.module.member.convert.social.SocialUserConvert;
 import cn.iocoder.yudao.module.system.api.social.SocialUserApi;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

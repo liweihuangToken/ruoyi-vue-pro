@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.system.controller.admin.tenant.vo.tenant;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;

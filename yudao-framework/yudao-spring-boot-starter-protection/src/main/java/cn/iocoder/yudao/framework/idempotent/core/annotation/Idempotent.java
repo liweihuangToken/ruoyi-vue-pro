@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.framework.idempotent.core.annotation;
 
-import cn.iocoder.yudao.framework.idempotent.core.keyresolver.impl.DefaultIdempotentKeyResolver;
 import cn.iocoder.yudao.framework.idempotent.core.keyresolver.IdempotentKeyResolver;
+import cn.iocoder.yudao.framework.idempotent.core.keyresolver.impl.DefaultIdempotentKeyResolver;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

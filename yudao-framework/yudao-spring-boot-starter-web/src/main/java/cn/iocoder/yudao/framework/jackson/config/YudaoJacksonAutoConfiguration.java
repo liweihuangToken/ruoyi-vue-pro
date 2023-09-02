@@ -1,22 +1,27 @@
 package cn.iocoder.yudao.framework.jackson.config;
 
-import cn.iocoder.yudao.framework.jackson.core.databind.NumberSerializer;
+import cn.iocoder.yudao.framework.common.util.json.JsonUtils;
 import cn.iocoder.yudao.framework.jackson.core.databind.LocalDateTimeDeserializer;
 import cn.iocoder.yudao.framework.jackson.core.databind.LocalDateTimeSerializer;
-import cn.iocoder.yudao.framework.common.util.json.JsonUtils;
+import cn.iocoder.yudao.framework.jackson.core.databind.NumberSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @AutoConfiguration
 @Slf4j
 public class YudaoJacksonAutoConfiguration {
+    public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
     @Bean
     public BeanPostProcessor objectMapperBeanPostProcessor() {
@@ -36,9 +41,10 @@ public class YudaoJacksonAutoConfiguration {
                 simpleModule
                         .addSerializer(Long.class, NumberSerializer.INSTANCE)
                         .addSerializer(Long.TYPE, NumberSerializer.INSTANCE)
+                        .addSerializer(LocalDate.class,  new LocalDateSerializer(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))
+                        .addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern(DEFAULT_DATE_FORMAT)))
                         .addSerializer(LocalDateTime.class, LocalDateTimeSerializer.INSTANCE)
                         .addDeserializer(LocalDateTime.class, LocalDateTimeDeserializer.INSTANCE);
-
                 objectMapper.registerModules(simpleModule);
 
                 JsonUtils.init(objectMapper);

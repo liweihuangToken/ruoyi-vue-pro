@@ -1,8 +1,8 @@
 {
   "name": "yudao-ui-admin",
-  "version": "1.8.0-snapshot",
-  "description": "芋道管理系统",
-  "author": "芋道",
+  "version": "1.8.0",
+  "description": "芋道管理平台",
+  "author": "liweihuang",
   "license": "MIT",
   "scripts": {
     "local": "vue-cli-service serve --mode local",
@@ -36,10 +36,7 @@
     "admin-template",
     "management-system"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/YunaiV/ruoyi-vue-pro"
-  },
+  "repository": "y",
   "dependencies": {
     "@babel/parser": "7.18.4",
     "@riophae/vue-treeselect": "0.4.0",
@@ -108,5 +105,7 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "main": "index",
+  "private": true
 }

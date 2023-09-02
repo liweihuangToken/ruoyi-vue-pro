@@ -1,8 +1,8 @@
 package cn.iocoder.yudao.module.system.controller.app.weixin;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxJsapiSignature;
 import me.chanjar.weixin.common.error.WxErrorException;

@@ -32,7 +32,9 @@ export default {
     let href = URL.createObjectURL(blob);
     let downA = document.createElement("a");
     downA.href = href;
-    downA.download = fileName;
+    var date = new Date();
+    var strDate = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+    downA.download = strDate + '_' + fileName;
     downA.click();
     // 销毁超连接
     window.URL.revokeObjectURL(href);

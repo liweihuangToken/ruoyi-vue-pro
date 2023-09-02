@@ -11,6 +11,8 @@ import cn.iocoder.yudao.module.infra.dal.dataobject.file.FileDO;
 import cn.iocoder.yudao.module.infra.dal.mysql.file.FileMapper;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -64,6 +66,13 @@ public class FileServiceImpl implements FileService {
         file.setSize(content.length);
         fileMapper.insert(file);
         return url;
+    }
+
+    @Override
+    @SneakyThrows
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public String createFileOtherTransaction(String name, String path, byte[] content) {
+        return createFile(name, path, content);
     }
 
     @Override

@@ -139,13 +139,13 @@ export default {
       mobileCodeTimer: 0,
       loginForm: {
         loginType: "uname",
-        username: "admin",
-        password: "admin123",
+        //username: "admin",
+        //password: "admin123",
         captchaVerification: "",
         mobile: "",
         mobileCode: "",
         rememberMe: false,
-        tenantName: "芋道源码",
+        tenantName: "A图工作室",
       },
       scene: 21,
 

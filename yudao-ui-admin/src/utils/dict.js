@@ -81,6 +81,11 @@ export const DICT_TYPE = {
   PROMOTION_COUPON_TAKE_TYPE: 'promotion_coupon_take_type', // 优惠劵的领取方式
   PROMOTION_ACTIVITY_STATUS: 'promotion_activity_status', // 优惠活动的状态
   PROMOTION_CONDITION_TYPE: 'promotion_condition_type', // 营销的条件类型枚举
+
+  // ========== DISTRIBUTION 模块 ==========
+  DISTRIBUTION_ORDER_STATUS: 'order_status', // 配货订单状态枚举
+  DISTRIBUTION_SETTLEMENT_FLAG: 'settlement_flag', // 配货订单结算标志
+  DISTRIBUTION_DELIVERY_METHOD: 'delivery_method', // 送货/取货方式
 }
 
 /**

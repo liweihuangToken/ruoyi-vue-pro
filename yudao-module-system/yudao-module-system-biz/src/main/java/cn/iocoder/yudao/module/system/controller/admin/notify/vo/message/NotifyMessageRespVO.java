@@ -1,8 +1,11 @@
 package cn.iocoder.yudao.module.system.controller.admin.notify.vo.message;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-import java.util.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.util.Date;
 
 @Schema(description = "管理后台 - 站内信 Response VO")
 @Data

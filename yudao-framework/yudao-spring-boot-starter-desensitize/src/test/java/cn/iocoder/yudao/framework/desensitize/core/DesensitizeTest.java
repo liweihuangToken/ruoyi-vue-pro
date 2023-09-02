@@ -1,22 +1,16 @@
 package cn.iocoder.yudao.framework.desensitize.core;
 
 import cn.iocoder.yudao.framework.common.util.json.JsonUtils;
+import cn.iocoder.yudao.framework.desensitize.core.annotation.Address;
 import cn.iocoder.yudao.framework.desensitize.core.regex.annotation.EmailDesensitize;
 import cn.iocoder.yudao.framework.desensitize.core.regex.annotation.RegexDesensitize;
-import cn.iocoder.yudao.framework.desensitize.core.annotation.Address;
-import cn.iocoder.yudao.framework.desensitize.core.slider.annotation.BankCardDesensitize;
-import cn.iocoder.yudao.framework.desensitize.core.slider.annotation.CarLicenseDesensitize;
-import cn.iocoder.yudao.framework.desensitize.core.slider.annotation.ChineseNameDesensitize;
-import cn.iocoder.yudao.framework.desensitize.core.slider.annotation.FixedPhoneDesensitize;
-import cn.iocoder.yudao.framework.desensitize.core.slider.annotation.IdCardDesensitize;
-import cn.iocoder.yudao.framework.desensitize.core.slider.annotation.PasswordDesensitize;
-import cn.iocoder.yudao.framework.desensitize.core.slider.annotation.MobileDesensitize;
-import cn.iocoder.yudao.framework.desensitize.core.slider.annotation.SliderDesensitize;
+import cn.iocoder.yudao.framework.desensitize.core.slider.annotation.*;
 import cn.iocoder.yudao.framework.test.core.ut.BaseMockitoUnitTest;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * {@link DesensitizeTest} 的单元测试

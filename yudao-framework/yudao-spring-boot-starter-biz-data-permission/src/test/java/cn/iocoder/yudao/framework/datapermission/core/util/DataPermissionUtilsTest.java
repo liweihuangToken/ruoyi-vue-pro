@@ -3,7 +3,7 @@ package cn.iocoder.yudao.framework.datapermission.core.util;
 import cn.iocoder.yudao.framework.datapermission.core.aop.DataPermissionContextHolder;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class DataPermissionUtilsTest {
 

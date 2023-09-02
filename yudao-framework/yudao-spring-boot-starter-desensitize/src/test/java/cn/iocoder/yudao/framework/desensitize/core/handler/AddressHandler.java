@@ -1,8 +1,8 @@
 package cn.iocoder.yudao.framework.desensitize.core.handler;
 
 import cn.iocoder.yudao.framework.desensitize.core.DesensitizeTest;
-import cn.iocoder.yudao.framework.desensitize.core.base.handler.DesensitizationHandler;
 import cn.iocoder.yudao.framework.desensitize.core.annotation.Address;
+import cn.iocoder.yudao.framework.desensitize.core.base.handler.DesensitizationHandler;
 
 /**
  * {@link Address} 的脱敏处理器
