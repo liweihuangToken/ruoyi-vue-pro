@@ -103,6 +103,10 @@ public class OrderDetailInfoDO extends BaseDO {
      */
     private String note;
     /**
+     * 货物编码
+     */
+    private String goodsCode;
+    /**
      * 尺码
      */
     private String size;

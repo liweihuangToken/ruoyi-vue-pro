@@ -18,12 +18,15 @@ import cn.iocoder.yudao.module.distribution.convert.comprehensiveorderinfo.Compr
 import cn.iocoder.yudao.module.distribution.dal.dataobject.comprehensiveorderinfo.ComprehensiveOrderInfoDO;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.downstreaminfo.DownstreamInfoDO;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.orderdetailinfo.OrderDetailInfoDO;
+import cn.iocoder.yudao.module.distribution.dal.dataobject.orderstatustrackinfo.OrderStatusTrackInfoDO;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.upstreaminfo.UpstreamInfoDO;
 import cn.iocoder.yudao.module.distribution.dal.mysql.comprehensiveorderinfo.ComprehensiveOrderInfoMapper;
 import cn.iocoder.yudao.module.distribution.dal.mysql.downstreaminfo.DownstreamInfoMapper;
 import cn.iocoder.yudao.module.distribution.dal.mysql.orderdetailinfo.OrderDetailInfoMapper;
+import cn.iocoder.yudao.module.distribution.dal.mysql.orderstatustrackinfo.OrderStatusTrackInfoMapper;
 import cn.iocoder.yudao.module.distribution.dal.mysql.upstreaminfo.UpstreamInfoMapper;
 import cn.iocoder.yudao.module.distribution.enums.DeliveryMethodEnum;
+import cn.iocoder.yudao.module.distribution.enums.OrderStatusEnum;
 import cn.iocoder.yudao.module.distribution.service.orderdetailinfo.OrderDetailInfoService;
 import cn.iocoder.yudao.module.distribution.utils.BarcodeUtil;
 import cn.iocoder.yudao.module.infra.service.file.FileService;
@@ -67,6 +70,9 @@ public class ComprehensiveOrderInfoServiceImpl implements ComprehensiveOrderInfo
     private OrderDetailInfoService orderDetailInfoService;
     @Resource
     private OrderDetailInfoMapper orderDetailInfoMapper;
+
+    @Resource
+    private OrderStatusTrackInfoMapper orderStatusTrackInfoMapper;
 
     @Resource
     private DownstreamInfoMapper downstreamInfoMapper;
@@ -195,6 +201,8 @@ public class ComprehensiveOrderInfoServiceImpl implements ComprehensiveOrderInfo
 
         // 更新订单明细订单编号 + 订单条形码信息
         List<OrderDetailInfoDO> orderDetailInfoUpdateDOList = new ArrayList<>();
+        // 添加订单状态跟踪信息
+        List<OrderStatusTrackInfoDO> orderStatusTrackInfoDOList = new ArrayList<>();
         // 14位时间码
         String dateStr = LocalDateTimeUtil.format(LocalDateTime.now(), DatePattern.PURE_DATE_FORMATTER);
         int cnt = 1;
@@ -228,7 +236,14 @@ public class ComprehensiveOrderInfoServiceImpl implements ComprehensiveOrderInfo
             orderDetailInfoUpdateDO.setOrderCode(orderCode);
             orderDetailInfoUpdateDO.setOrderOnedimensionalCodePictureUrl(labelUrl);
             orderDetailInfoUpdateDOList.add(orderDetailInfoUpdateDO);
+
+            // 组装订单状态跟踪条目
+            OrderStatusTrackInfoDO orderStatusTrackInfoDO = new OrderStatusTrackInfoDO();
+            orderStatusTrackInfoDO.setOrderCode(orderCode);
+            orderStatusTrackInfoDO.setOrderAfterChangeStatus(Byte.valueOf(OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode().toString()));
+            orderStatusTrackInfoDOList.add(orderStatusTrackInfoDO);
         }
+        orderStatusTrackInfoMapper.insertBatch(orderStatusTrackInfoDOList);
         orderDetailInfoMapper.updateBatch(orderDetailInfoUpdateDOList);
     }
 

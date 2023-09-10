@@ -4,14 +4,11 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.MPJLambdaWrapperX;
-import cn.iocoder.yudao.module.distribution.controller.admin.orderdetailinfo.vo.OrderDetailInfoExportReqVO;
-import cn.iocoder.yudao.module.distribution.controller.admin.orderdetailinfo.vo.OrderDetailInfoFacingObjectRespVO;
-import cn.iocoder.yudao.module.distribution.controller.admin.orderdetailinfo.vo.OrderDetailInfoPageReqVO;
+import cn.iocoder.yudao.module.distribution.controller.admin.orderdetailinfo.vo.*;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.comprehensiveorderinfo.ComprehensiveOrderInfoDO;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.downstreaminfo.DownstreamInfoDO;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.orderdetailinfo.OrderDetailInfoDO;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.upstreaminfo.UpstreamInfoDO;
-import com.github.yulichang.query.MPJQueryWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -36,8 +33,8 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
                 .eqIfPresent(OrderDetailInfoDO::getOrderSalesAmount, reqVO.getOrderSalesAmount())
                 .eqIfPresent(OrderDetailInfoDO::getOrderCostAmount, reqVO.getOrderCostAmount())
                 .eqIfPresent(OrderDetailInfoDO::getOrderPlanProfitAmount, reqVO.getOrderPlanProfitAmount())
-                .likeIfPresent(OrderDetailInfoDO::getUpstreamName, reqVO.getUpstreamName())
-                .likeIfPresent(OrderDetailInfoDO::getDownstreamName, reqVO.getDownstreamName())
+                .eqIfPresent(OrderDetailInfoDO::getUpstreamName, reqVO.getUpstreamName())
+                .eqIfPresent(OrderDetailInfoDO::getDownstreamName, reqVO.getDownstreamName())
                 .eqIfPresent(OrderDetailInfoDO::getOrderStatus, reqVO.getOrderStatus())
                 .eqIfPresent(OrderDetailInfoDO::getOrderActualProfitAmount, reqVO.getOrderActualProfitAmount())
                 .eqIfPresent(OrderDetailInfoDO::getSettlementFlag, reqVO.getSettlementFlag())
@@ -63,8 +60,8 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
                 .eqIfPresent(OrderDetailInfoDO::getOrderSalesAmount, reqVO.getOrderSalesAmount())
                 .eqIfPresent(OrderDetailInfoDO::getOrderCostAmount, reqVO.getOrderCostAmount())
                 .eqIfPresent(OrderDetailInfoDO::getOrderPlanProfitAmount, reqVO.getOrderPlanProfitAmount())
-                .likeIfPresent(OrderDetailInfoDO::getUpstreamName, reqVO.getUpstreamName())
-                .likeIfPresent(OrderDetailInfoDO::getDownstreamName, reqVO.getDownstreamName())
+                .eqIfPresent(OrderDetailInfoDO::getUpstreamName, reqVO.getUpstreamName())
+                .eqIfPresent(OrderDetailInfoDO::getDownstreamName, reqVO.getDownstreamName())
                 .eqIfPresent(OrderDetailInfoDO::getOrderStatus, reqVO.getOrderStatus())
                 .eqIfPresent(OrderDetailInfoDO::getOrderActualProfitAmount, reqVO.getOrderActualProfitAmount())
                 .eqIfPresent(OrderDetailInfoDO::getSettlementFlag, reqVO.getSettlementFlag())
@@ -76,6 +73,7 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
                 .eqIfPresent(OrderDetailInfoDO::getCreateSort, reqVO.getCreateSort())
                 .orderByDesc(OrderDetailInfoDO::getId));
     }
+
     default List<OrderDetailInfoFacingObjectRespVO> selectListFacingDownstream(Collection<Long> ids) {
         return selectJoinList(OrderDetailInfoFacingObjectRespVO.class, new MPJLambdaWrapper<OrderDetailInfoDO>()
                 .selectAll(OrderDetailInfoDO.class)
@@ -112,8 +110,8 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
                 .eqIfPresent(OrderDetailInfoDO::getOrderSalesAmount, reqVO.getOrderSalesAmount())
                 .eqIfPresent(OrderDetailInfoDO::getOrderCostAmount, reqVO.getOrderCostAmount())
                 .eqIfPresent(OrderDetailInfoDO::getOrderPlanProfitAmount, reqVO.getOrderPlanProfitAmount())
-                .likeIfPresent(OrderDetailInfoDO::getUpstreamName, reqVO.getUpstreamName())
-                .likeIfPresent(OrderDetailInfoDO::getDownstreamName, reqVO.getDownstreamName())
+                .eqIfPresent(OrderDetailInfoDO::getUpstreamName, reqVO.getUpstreamName())
+                .eqIfPresent(OrderDetailInfoDO::getDownstreamName, reqVO.getDownstreamName())
                 .eqIfPresent(OrderDetailInfoDO::getOrderStatus, reqVO.getOrderStatus())
                 .eqIfPresent(OrderDetailInfoDO::getOrderActualProfitAmount, reqVO.getOrderActualProfitAmount())
                 .eqIfPresent(OrderDetailInfoDO::getSettlementFlag, reqVO.getSettlementFlag())
@@ -149,8 +147,8 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
                 .eqIfPresent(OrderDetailInfoDO::getOrderSalesAmount, reqVO.getOrderSalesAmount())
                 .eqIfPresent(OrderDetailInfoDO::getOrderCostAmount, reqVO.getOrderCostAmount())
                 .eqIfPresent(OrderDetailInfoDO::getOrderPlanProfitAmount, reqVO.getOrderPlanProfitAmount())
-                .likeIfPresent(OrderDetailInfoDO::getUpstreamName, reqVO.getUpstreamName())
-                .likeIfPresent(OrderDetailInfoDO::getDownstreamName, reqVO.getDownstreamName())
+                .eqIfPresent(OrderDetailInfoDO::getUpstreamName, reqVO.getUpstreamName())
+                .eqIfPresent(OrderDetailInfoDO::getDownstreamName, reqVO.getDownstreamName())
                 .eqIfPresent(OrderDetailInfoDO::getOrderStatus, reqVO.getOrderStatus())
                 .eqIfPresent(OrderDetailInfoDO::getOrderActualProfitAmount, reqVO.getOrderActualProfitAmount())
                 .eqIfPresent(OrderDetailInfoDO::getSettlementFlag, reqVO.getSettlementFlag())
@@ -190,5 +188,46 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
                 .orderByAsc(DownstreamInfoDO::getDeliverySort)
                 .orderByAsc(OrderDetailInfoDO::getCreateSort)
                 .orderByAsc(OrderDetailInfoDO::getSize));
+    }
+
+    default PageResult<OrderDetailInfoDownstreamRespVO> selectDownstreamOrderPage(OrderDetailInfoDownstreamReqVO reqVO) {
+        return selectJoinPage(reqVO, OrderDetailInfoDownstreamRespVO.class, new MPJLambdaWrapperX<OrderDetailInfoDO>()
+                .selectX(OrderDetailInfoDO::getOrderDate)
+                .selectX(DownstreamInfoDO::getDownstreamAlias, DownstreamInfoDO::getDownstreamName)
+                .selectMaxX(DownstreamInfoDO::getDeliveryMethod)
+                .selectMaxX(DownstreamInfoDO::getDownstreamAddress)
+                .selectCount(OrderDetailInfoDO::getId, OrderDetailInfoDownstreamRespVO::getTotalOrderNumber)
+                .selectSumX(OrderDetailInfoDO::getOrderSalesAmount, OrderDetailInfoDownstreamRespVO::getTotalOrderSalesAmount)
+                .selectSumX(OrderDetailInfoDO::getOrderCostAmount, OrderDetailInfoDownstreamRespVO::getTotalOrderCostAmount)
+                .selectSumX(OrderDetailInfoDO::getOrderPlanProfitAmount, OrderDetailInfoDownstreamRespVO::getTotalOrderPlanProfitAmount)
+                .leftJoinX(DownstreamInfoDO.class, DownstreamInfoDO::getDownstreamName, OrderDetailInfoDO::getDownstreamName)
+                .betweenIfPresent(OrderDetailInfoDO::getOrderDate, reqVO.getOrderDate())
+                .eqIfPresent(DownstreamInfoDO::getDownstreamName, reqVO.getDownstreamName())
+                .eqIfPresent(DownstreamInfoDO::getDownstreamAlias, reqVO.getDownstreamAlias())
+                .eqIfPresent(DownstreamInfoDO::getDeliveryMethod, reqVO.getDeliveryMethod())
+                .groupBy(OrderDetailInfoDO::getDownstreamName)
+                .groupBy(DownstreamInfoDO::getDownstreamAlias)
+                .groupBy(OrderDetailInfoDO::getOrderDate)
+                .orderByAsc(OrderDetailInfoDO::getOrderDate)
+                .orderByAsc(DownstreamInfoDO::getDownstreamAlias)
+        );
+    }
+
+    default OrderDetailInfoFacingObjectRespVO getOrderDetailInfoByCode(String code) {
+        List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = selectJoinList(OrderDetailInfoFacingObjectRespVO.class, new MPJLambdaWrapperX<OrderDetailInfoDO>()
+                .selectAll(OrderDetailInfoDO.class)
+                .selectX(UpstreamInfoDO::getUpstreamAlias, UpstreamInfoDO::getPickupMethod)
+                .selectX(DownstreamInfoDO::getDownstreamAlias, DownstreamInfoDO::getDeliveryMethod)
+                .leftJoinX(ComprehensiveOrderInfoDO.class, ComprehensiveOrderInfoDO::getComprehensiveOrderCode, OrderDetailInfoDO::getComprehensiveOrderCode)
+                .leftJoinX(DownstreamInfoDO.class, DownstreamInfoDO::getDownstreamName, OrderDetailInfoDO::getDownstreamName)
+                .leftJoinX(UpstreamInfoDO.class, UpstreamInfoDO::getUpstreamName, OrderDetailInfoDO::getUpstreamName)
+                .eqIfPresent(OrderDetailInfoDO::getOrderCode, code)
+                .or()
+                .eqIfPresent(OrderDetailInfoDO::getGoodsCode, code));
+        if (null != orderDetailInfoFacingObjectRespVOList && !orderDetailInfoFacingObjectRespVOList.isEmpty()) {
+            return orderDetailInfoFacingObjectRespVOList.get(0);
+        } else {
+            return null;
+        }
     }
 }

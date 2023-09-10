@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.distribution.controller.admin.orderdetailinfo.vo;
 
+import cn.iocoder.yudao.module.distribution.dal.dataobject.orderstatustrackinfo.OrderStatusTrackInfoDO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -7,6 +8,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "管理后台 - 配货订单明细 Response VO")
 @Data
@@ -34,5 +36,11 @@ public class OrderDetailInfoFacingObjectRespVO extends OrderDetailInfoBaseVO {
 
     @Schema(description = "综合信息")
     private String totalInfo;
+
+    @Schema(description = "状态跟踪信息")
+    private List<OrderStatusTrackInfoDO> orderStatusTrackInfoDOList;
+
+    @Schema(description = "订单明细统计信息")
+    private OrderDetailStatisticsInfoVO orderDetailStatisticsInfoVO;
 
 }

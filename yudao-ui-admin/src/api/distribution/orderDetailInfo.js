@@ -43,6 +43,15 @@ export function getOrderDetailInfoPage(query) {
   })
 }
 
+// 订单图片上传
+export function updateOrderPictrue(data) {
+  return request({
+    url: '/distribution/order-detail-info/update-order-pictrue',
+    method: 'put',
+    data: data
+  })
+}
+
 // 导出配货订单明细 Excel
 export function exportOrderDetailInfoExcel(query) {
   return request({
@@ -73,3 +82,13 @@ export function exportOrderDetailInfoFacingObjectExcel(query) {
     responseType: 'blob'
   })
 }
+
+// 获得下游配货订单综合分页
+export function getDownstreamOrderPage(query) {
+  return request({
+    url: '/distribution/downstream-order-detail-info/page',
+    method: 'get',
+    params: query
+  })
+}
+

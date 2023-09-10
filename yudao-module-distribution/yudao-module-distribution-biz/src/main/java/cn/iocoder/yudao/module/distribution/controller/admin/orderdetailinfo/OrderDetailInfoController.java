@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -27,8 +28,11 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+import static cn.iocoder.yudao.module.infra.enums.ErrorCodeConstants.FILE_IS_EMPTY;
 
 @Tag(name = "管理后台 - 配货订单明细")
 @RestController
@@ -49,7 +53,7 @@ public class OrderDetailInfoController {
     @PutMapping("/update")
     @Operation(summary = "更新配货订单明细")
     @PreAuthorize("@ss.hasPermission('distribution:order-detail-info:update')")
-    public CommonResult<Boolean> updateOrderDetailInfo(@Valid @RequestBody OrderDetailInfoUpdateReqVO updateReqVO) {
+    public CommonResult<Boolean> updateOrderDetailInfo(@Valid @RequestBody OrderDetailInfoUpdateReqVO updateReqVO) throws IOException {
         orderDetailInfoService.updateOrderDetailInfo(updateReqVO);
         return success(true);
     }
@@ -99,6 +103,16 @@ public class OrderDetailInfoController {
         // 导出 Excel
         List<OrderDetailInfoExcelVO> datas = OrderDetailInfoConvert.INSTANCE.convertList02(list);
         ExcelUtils.write(response, "配货订单明细.xls", "数据", OrderDetailInfoExcelVO.class, datas);
+    }
+
+    @RequestMapping(value = "/update-order-pictrue", method = {RequestMethod.POST, RequestMethod.PUT}) // 解决 uni-app 不支持 Put 上传文件的问题
+    @Operation(summary = "上传订单图片")
+    public CommonResult<String> updateOrderPictrue(@RequestParam("file") MultipartFile file) throws Exception {
+        if (file.isEmpty()) {
+            throw exception(FILE_IS_EMPTY);
+        }
+        String imgUrl = orderDetailInfoService.updateOrderPictrue(file.getInputStream());
+        return success(imgUrl);
     }
 
 
@@ -160,4 +174,19 @@ public class OrderDetailInfoController {
         outputStream.close();
     }
 
+    ///////// 移动端 //////////
+    @GetMapping("/getByCode")
+    @Operation(summary = "通过订单编码或货品编码获得配货订单明细")
+    @Parameter(name = "code", description = "编码", required = true, example = "1024")
+    public CommonResult<OrderDetailInfoFacingObjectRespVO> getOrderDetailInfoByCode(@RequestParam("code") String code) {
+        OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO = orderDetailInfoService.getOrderDetailInfoByCode(code);
+        return success(orderDetailInfoFacingObjectRespVO);
+    }
+
+    @PutMapping("/updateOrderStatus")
+    @Operation(summary = "更新配货订单状态")
+    public CommonResult<Boolean> updateOrderStatus(@Valid @RequestBody OrderDetailInfoUpdateReqVO updateReqVO) throws IOException {
+        orderDetailInfoService.updateOrderStatus(updateReqVO);
+        return success(true);
+    }
 }

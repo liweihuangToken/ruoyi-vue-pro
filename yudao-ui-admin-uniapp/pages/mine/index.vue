@@ -27,7 +27,7 @@
 
     <view class="content-section">
       <view class="mine-actions grid col-4 text-center">
-        <view class="action-item" @click="handleJiaoLiuQun">
+        <view class="action-item" @click="handleBuilding">
           <view class="iconfont icon-friendfill text-pink icon"></view>
           <text class="text">交流群</text>
         </view>
@@ -52,7 +52,7 @@
             <view>编辑资料</view>
           </view>
         </view>
-        <view class="list-cell list-cell-arrow" @click="handleHelp">
+        <!-- <view class="list-cell list-cell-arrow" @click="handleHelp">
           <view class="menu-item-box">
             <view class="iconfont icon-help menu-icon"></view>
             <view>常见问题</view>
@@ -63,7 +63,7 @@
             <view class="iconfont icon-aixin menu-icon"></view>
             <view>关于我们</view>
           </view>
-        </view>
+        </view> -->
         <view class="list-cell list-cell-arrow" @click="handleToSetting">
           <view class="menu-item-box">
             <view class="iconfont icon-setting menu-icon"></view>

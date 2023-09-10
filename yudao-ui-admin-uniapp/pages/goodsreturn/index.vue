@@ -3,9 +3,9 @@
 		<uni-section title="查询条件" type="line">
 			<uni-easyinput class="uni-mt-10" :focus="focusFlag" v-model="searchValue" placeholder="请手动输入或扫描输入订单编码" @confirm="search"/>
 		</uni-section>
-		<div>
+		<div class='uni-section-backgroud'>
 			<uni-section title="货物编码" type="line" class="uni-margin-top">
-				<uni-easyinput :focus="focusFlag2" v-model="goodsCode" placeholder="请手动输入或扫描输入货品编码"/>
+				<uni-easyinput :focus="focusFlag2" v-model="goodsCode" disabled placeholder="货物编码由系统查询"/>
 			</uni-section>
 			<uni-section title="主体信息" type="line">
 				<uni-card title="标签信息" padding="10px 0" >
@@ -15,7 +15,7 @@
 			<uni-section title="状态跟踪" type="line" padding>
 				<uni-steps :options="list2" active-color="#007AFF" :active="active" direction="column" />
 			</uni-section>
-			<uni-section title="所属上游今日综合信息" type="line" padding class="uni-list-item__extra-text">
+			<uni-section title="所属下游今日综合信息" type="line" padding class="uni-list-item__extra-text">
 				<uni-card title="结款信息" padding="10px 0" >
 					<uni-list>
 						<uni-list-item :show-extra-icon="true" :border="true" :extra-icon="extraIcon_fee" title="结款金额" :rightText="settlementAmont" />
@@ -44,9 +44,8 @@
 			</uni-section>
 			<div class="uni-button-position">
 				<button type="default" class="uni-button" @click="reset">重置</button>
-				<button type="primary" class="uni-button" :loading="isLoading" @click="upateStatus('2')">无货</button>
-				<button type="warn" class="uni-button" :loading="isLoading2" @click="upateStatus('1')">普通入库</button>
-				<button type="warn" class="uni-button" :loading="isLoading3">付款入库</button>
+				<button type="primary" class="uni-button" :loading="isLoading" @click="upateStatus('2')">退货</button>
+				<button type="warn" class="uni-button" :loading="isLoading2" @click="upateStatus('1')">退货撤销</button>
 				<!-- <button type="warn" class="uni-button">撤销入库</button> -->
 			</div>
 		</div>
@@ -225,8 +224,12 @@
 
 	.backgroud {
 		padding: 15px;
-		background-color: #fff;
+		background-color: #d4e4ff;
 		height: 100%;
+	}
+	
+	.uni-section-backgroud {
+		border-radius: 30px;
 	}
 
 	.uni-button {

@@ -169,7 +169,7 @@
     <el-dialog :title="title" :visible.sync="open" width="580px" v-dialogDrag append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="150px">
         <el-form-item label="订单所属日期" prop="orderDate">
-          <el-date-picker clearable v-model="form.orderDate" type="date" placeholder="选择订单所属日期" :disabled="isEdit"/>
+          <el-date-picker clearable v-model="form.orderDate" type="date" placeholder="选择订单所属日期" :disabled = "isEdit"/>
         </el-form-item>
         <el-form-item label="上游名称" prop="upstreamName">
           <el-input v-model="form.upstreamName" placeholder="请输入上游名称" />
@@ -182,7 +182,7 @@
         </el-form-item>
         <el-form-item label="订单图片" prop="orderGoodsPictureUrl">
           <!-- <image-preview v-if="form.orderGoodsPictureUrl" :src="form.orderGoodsPictureUrl" :width="'250px'"/> -->
-          <div class="order-info-head" @click="editCropper()">
+          <div class="order-info-head" @click="editCropper(form.orderGoodsPictureUrl)">
             <img v-bind:src="form.orderGoodsPictureUrl" title="点击上传订单图片" :width="'250px'" :height="'180px'"/>
           </div>
         </el-form-item>
@@ -196,10 +196,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="订单销售金额" prop="orderSalesAmount">
-          <el-input v-model="form.orderSalesAmount" placeholder="请输入订单销售金额" />
+          <el-input v-model="form.orderSalesAmount" placeholder="请输入订单销售金额" type="number"/>
         </el-form-item>
         <el-form-item label="订单成本金额" prop="orderCostAmount">
-          <el-input v-model="form.orderCostAmount" placeholder="请输入订单成本金额" />
+          <el-input v-model="form.orderCostAmount" placeholder="请输入订单成本金额" type="number"/>
         </el-form-item>
         <el-form-item label="尺码" prop="size">
           <el-input v-model="form.size" placeholder="请输入尺码" />
@@ -214,7 +214,7 @@
           <el-input v-model="form.orderPlanProfitAmount" placeholder="请输入订单计划利润金额" :disabled="isEdit"/>
         </el-form-item>
         <el-form-item label="订单实际利润金额" prop="orderActualProfitAmount">
-          <el-input v-model="form.orderActualProfitAmount" placeholder="请输入订单实际利润金额" :disabled="isEdit"/>
+          <el-input v-model="form.orderActualProfitAmount" placeholder="请输入订单实际利润金额"/>
         </el-form-item>
         <el-form-item label="结算标志" prop="settlementFlag">
           <el-select v-model="form.settlementFlag" placeholder="请选择订单状态" :disabled="isEdit">
@@ -238,9 +238,9 @@
     </el-dialog>
 
     <!-- 订单图片上传修改 -->
-    <el-dialog :title="editOrderPictruetitle" :visible.sync="openPictrue" width="800px" append-to-body @opened="modalOpened" @close="closeDialog()">
+    <el-dialog :title="editOrderPictruetitle" :visible.sync="openPictrue" width="500px" append-to-body @opened="modalOpened" @close="closeDialog()">
       <el-row>
-        <el-col :xs="24" :md="12" :style="{height: '350px'}">
+        <el-col :style="{height: '500px'}">
           <vue-cropper
             ref="cropper"
             :img="options.img"
@@ -249,19 +249,13 @@
             :autoCropWidth="options.autoCropWidth"
             :autoCropHeight="options.autoCropHeight"
             :fixedBox="options.fixedBox"
-            @realTime="realTime"
             v-if="visible"
           />
-        </el-col>
-        <el-col :xs="24" :md="12" :style="{height: '350px'}">
-          <div class="avatar-upload-preview">
-            <img :src="previews.url" :style="previews.img" />
-          </div>
         </el-col>
       </el-row>
       <br />
       <el-row>
-        <el-col :lg="2" :md="2">
+        <el-col :lg="1" :md="2">
           <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
             <el-button size="small">
               选择
@@ -269,19 +263,19 @@
             </el-button>
           </el-upload>
         </el-col>
-        <el-col :lg="{span: 1, offset: 2}" :md="2">
+        <el-col :lg="{span: 1, offset: 4}" :md="2">
           <el-button icon="el-icon-plus" size="small" @click="changeScale(1)"></el-button>
         </el-col>
-        <el-col :lg="{span: 1, offset: 1}" :md="2">
+        <el-col :lg="{span: 1, offset: 3}" :md="2">
           <el-button icon="el-icon-minus" size="small" @click="changeScale(-1)"></el-button>
         </el-col>
-        <el-col :lg="{span: 1, offset: 1}" :md="2">
+        <el-col :lg="{span: 1, offset: 3}" :md="2">
           <el-button icon="el-icon-refresh-left" size="small" @click="rotateLeft()"></el-button>
         </el-col>
-        <el-col :lg="{span: 1, offset: 1}" :md="2">
+        <el-col :lg="{span: 1, offset: 3}" :md="2">
           <el-button icon="el-icon-refresh-right" size="small" @click="rotateRight()"></el-button>
         </el-col>
-        <el-col :lg="{span: 2, offset: 6}" :md="2">
+        <el-col :lg="{span: 1, offset: 3}" :md="2">
           <el-button type="primary" size="small" @click="uploadImg()">提 交</el-button>
         </el-col>
       </el-row>
@@ -295,6 +289,7 @@ import { createOrderDetailInfo,
         deleteOrderDetailInfo,
         getOrderDetailInfo,
         getOrderDetailInfoPage,
+        updateOrderPictrue,
         exportOrderDetailInfoExcel,
         exportOrderDetailInfoLableExcel,
         exportOrderDetailInfoFacingObjectExcel,
@@ -326,7 +321,7 @@ export default {
       // 是否显示弹出层
       open: false,
       // 不可编辑
-      isEdit: false,
+      isEdit: true,
       // 查询参数
       queryParams: {
         pageNo: 1,
@@ -378,9 +373,8 @@ export default {
         autoCrop: true, // 是否默认生成截图框
         autoCropWidth: 250, // 默认生成截图框宽度
         autoCropHeight: 180, // 默认生成截图框高度
-        fixedBox: true // 固定截图框大小 不允许改变
-      },
-      previews: {}
+        fixedBox: false // 固定截图框大小 不允许改变
+      }
     };
   },
   created() {
@@ -530,9 +524,10 @@ export default {
           this.exportLoading = false;
         }).catch(() => {});
     },
-    //、、、、、、、、
-    // 编辑头像
-    editCropper() {
+
+    // 编辑订单图片
+    editCropper(url) {
+      this.options.img = url;
       this.openPictrue = true;
     },
     // 打开弹出层结束时的回调
@@ -571,25 +566,21 @@ export default {
     uploadImg() {
       this.$refs.cropper.getCropBlob(data => {
         let formData = new FormData();
-        formData.append("avatarFile", data);
-        uploadAvatar(formData).then(resp => {
+        formData.append("file", data);
+        updateOrderPictrue(formData).then(resp => {
           this.openPictrue = false;
-          // this.options.img = process.env.VUE_APP_BASE_API + response.imgUrl;
-          store.commit('SET_AVATAR', resp.data);
+          this.options.img = process.env.VUE_APP_BASE_API + resp.data;
           this.$modal.msgSuccess("修改成功");
           this.visible = false;
+          console.log(resp.data);
+          this.form.orderGoodsPictureUrl = resp.data;
         });
       });
-    },
-    // 实时预览
-    realTime(data) {
-      this.previews = data;
     },
     // 取消截图，关闭对话框
     closeDialog() {
       this.options.img = store.getters.avatar
     }
-    //、、、、
   }
 };
 </script>
@@ -602,7 +593,7 @@ export default {
 }
 
 .order-info-head:hover:after {
-  content: '+';
+  content: '点击图片进行图片更换';
   position: absolute;
   left: 0;
   right: 0;
@@ -610,13 +601,13 @@ export default {
   bottom: 0;
   color: #eee;
   background: rgba(0, 0, 0, 0.5);
-  font-size: 60px;
+  font-size: 25px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   cursor: pointer;
   line-height: 180px;
-  border-radius: 50%;
+  // border-radius: 50%;
 }
 </style>
 

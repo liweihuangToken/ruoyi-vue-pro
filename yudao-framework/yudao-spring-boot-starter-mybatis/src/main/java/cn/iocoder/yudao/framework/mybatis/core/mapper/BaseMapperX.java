@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * 在 MyBatis Plus 的 BaseMapper 的基础上拓展，提供更多的能力
  */
-public interface BaseMapperX<T> extends MPJBaseMapper<T> {
+public interface BaseMapperX<T> extends MPJBaseMapperX<T> {
 
     default PageResult<T> selectPage(PageParam pageParam, @Param("ew") Wrapper<T> queryWrapper) {
         // MyBatis Plus 查询

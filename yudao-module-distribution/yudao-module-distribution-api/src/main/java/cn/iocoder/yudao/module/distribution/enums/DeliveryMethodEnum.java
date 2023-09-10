@@ -16,14 +16,18 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum DeliveryMethodEnum implements IntArrayValuable{
 
-    DELIVERY_METHOD_SELF(1, "S"),
     /**
-     * 钉钉
+     * 自取
+     */
+    DELIVERY_METHOD_SELF(1, "S"),
+
+    /**
+     * 配送
      */
     DELIVERY_METHOD_DELIVERY(2, "D"),
 
     /**
-     * 企业微信
+     * 代发
      */
     DELIVERY_METHOD_REPLACE(3, "R"),
     ;

@@ -3,7 +3,15 @@ package cn.iocoder.yudao.module.distribution.service.orderdetailinfo;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.iocoder.yudao.module.distribution.controller.admin.orderstatustrackinfo.vo.OrderStatusTrackInfoExportReqVO;
+import cn.iocoder.yudao.module.distribution.dal.dataobject.comprehensiveorderinfo.ComprehensiveOrderInfoDO;
+import cn.iocoder.yudao.module.distribution.dal.dataobject.orderstatustrackinfo.OrderStatusTrackInfoDO;
+import cn.iocoder.yudao.module.distribution.dal.mysql.comprehensiveorderinfo.ComprehensiveOrderInfoMapper;
+import cn.iocoder.yudao.module.distribution.dal.mysql.orderstatustrackinfo.OrderStatusTrackInfoMapper;
 import cn.iocoder.yudao.module.distribution.enums.DeliveryMethodEnum;
+import cn.iocoder.yudao.module.distribution.enums.OrderStatusEnum;
+import cn.iocoder.yudao.module.distribution.utils.BarcodeUtil;
 import cn.iocoder.yudao.module.distribution.utils.SucodeUtil;
 import cn.iocoder.yudao.module.infra.service.file.FileService;
 import org.springframework.stereotype.Service;
@@ -19,6 +27,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
 
@@ -45,6 +54,12 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
     private OrderDetailInfoMapper orderDetailInfoMapper;
 
     @Resource
+    private ComprehensiveOrderInfoMapper comprehensiveOrderInfoMapper;
+
+    @Resource
+    private OrderStatusTrackInfoMapper orderStatusTrackInfoMapper;
+
+    @Resource
     private FileService fileService;
 
     @Override
@@ -57,18 +72,66 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
     }
 
     @Override
-    public void updateOrderDetailInfo(OrderDetailInfoUpdateReqVO updateReqVO) {
+    public void updateOrderDetailInfo(OrderDetailInfoUpdateReqVO updateReqVO) throws IOException {
         // 校验存在
         validateOrderDetailInfoExists(updateReqVO.getId());
+        OrderDetailInfoDO oldOrderDetailInfoDO = orderDetailInfoMapper.selectById(updateReqVO.getId());
         // 更新
+        BigDecimal planProfitAmount = updateReqVO.getOrderSalesAmount().subtract(updateReqVO.getOrderCostAmount());
+        updateReqVO.setOrderPlanProfitAmount(planProfitAmount);
         OrderDetailInfoDO updateObj = OrderDetailInfoConvert.INSTANCE.convert(updateReqVO);
         orderDetailInfoMapper.updateById(updateObj);
+
+        // 重新生成标签图片
+        OrderDetailInfoDO orderDetailInfoDO = orderDetailInfoMapper.selectById(updateReqVO.getId());
+        if (!StrUtil.isEmpty(orderDetailInfoDO.getOrderCode())) {
+            OrderDetailInfoExportReqVO orderDetailInfoExportReqVO = new OrderDetailInfoExportReqVO();
+            orderDetailInfoExportReqVO.setOrderCode(orderDetailInfoDO.getOrderCode());
+            List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = orderDetailInfoMapper.selectListFacingDownstream(orderDetailInfoExportReqVO);
+            for (OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO : orderDetailInfoFacingObjectRespVOList) {
+                // 生成订单编码一维码图片并上传文件管理
+                String orderCode = orderDetailInfoFacingObjectRespVO.getOrderCode();
+                byte[] bytes = BarcodeUtil.generateBarCode128(orderCode, null, 8.00d, 4.00d, true, null);
+                String codePictrueName = orderCode + ".png";
+                String orderCodeUrl = fileService.createFile(codePictrueName, null, bytes);
+                String pictrueUrl = assignOrderInfoLabel(orderDetailInfoFacingObjectRespVO, orderCodeUrl, orderCode);
+                orderDetailInfoDO.setOrderOnedimensionalCodePictureUrl(pictrueUrl);
+                orderDetailInfoMapper.updateById(orderDetailInfoDO);
+            }
+        }
+
+        // 更新综合订单信息
+        ComprehensiveOrderInfoDO comprehensiveOrderInfoDO = comprehensiveOrderInfoMapper.selectOne(ComprehensiveOrderInfoDO::getComprehensiveOrderCode, orderDetailInfoDO.getComprehensiveOrderCode());
+        comprehensiveOrderInfoDO.setTotalOrderCostAmount(
+                comprehensiveOrderInfoDO.getTotalOrderCostAmount().subtract(oldOrderDetailInfoDO.getOrderCostAmount()).add(orderDetailInfoDO.getOrderCostAmount())
+        );
+        comprehensiveOrderInfoDO.setTotalOrderSalesAmount(
+                comprehensiveOrderInfoDO.getTotalOrderSalesAmount().subtract(oldOrderDetailInfoDO.getOrderSalesAmount()).add(orderDetailInfoDO.getOrderSalesAmount())
+        );
+        comprehensiveOrderInfoDO.setTotalOrderPlanProfitAmount(
+                comprehensiveOrderInfoDO.getTotalOrderPlanProfitAmount().subtract(oldOrderDetailInfoDO.getOrderPlanProfitAmount()).add(orderDetailInfoDO.getOrderPlanProfitAmount())
+        );
+        comprehensiveOrderInfoMapper.updateById(comprehensiveOrderInfoDO);
     }
 
     @Override
     public void deleteOrderDetailInfo(Long id) {
         // 校验存在
         validateOrderDetailInfoExists(id);
+        // 更新新综合订单信息
+        OrderDetailInfoDO oldOrderDetailInfoDO = orderDetailInfoMapper.selectById(id);
+        ComprehensiveOrderInfoDO comprehensiveOrderInfoDO = comprehensiveOrderInfoMapper.selectOne(ComprehensiveOrderInfoDO::getComprehensiveOrderCode, oldOrderDetailInfoDO.getComprehensiveOrderCode());
+        comprehensiveOrderInfoDO.setTotalOrderCostAmount(
+                comprehensiveOrderInfoDO.getTotalOrderCostAmount().subtract(oldOrderDetailInfoDO.getOrderCostAmount())
+        );
+        comprehensiveOrderInfoDO.setTotalOrderSalesAmount(
+                comprehensiveOrderInfoDO.getTotalOrderSalesAmount().subtract(oldOrderDetailInfoDO.getOrderSalesAmount())
+        );
+        comprehensiveOrderInfoDO.setTotalOrderPlanProfitAmount(
+                comprehensiveOrderInfoDO.getTotalOrderPlanProfitAmount().subtract(oldOrderDetailInfoDO.getOrderPlanProfitAmount())
+        );
+        comprehensiveOrderInfoDO.setTotalOrderNumber(comprehensiveOrderInfoDO.getTotalOrderNumber() - 1);
+        comprehensiveOrderInfoMapper.updateById(comprehensiveOrderInfoDO);
         // 删除
         orderDetailInfoMapper.deleteById(id);
     }
@@ -320,6 +383,104 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
             orderDetailInfoFacingObjectExcelVOAllList.addAll(orderDetailInfoFacingObjectExcelVOList);
         }
         return orderDetailInfoFacingObjectExcelVOAllList;
+    }
+
+    @Override
+    public String updateOrderPictrue(InputStream inputStream) {
+        return fileService.createFile(
+                UUID.randomUUID().toString().replaceAll("-", "") + ".png", null, IoUtil.readBytes(inputStream));
+    }
+
+    @Override
+    public PageResult<OrderDetailInfoDownstreamRespVO> selectDownstreamOrderPage(OrderDetailInfoDownstreamReqVO reqVO) {
+        // 如果没有传所属日期则取最近订单的所属日期
+        if (null == reqVO.getOrderDate() || 0 == reqVO.getOrderDate().length) {
+            List<OrderDetailInfoDownstreamRespVO> list = orderDetailInfoMapper.selectDownstreamOrderPage(reqVO).getList();
+            if (null != list && !list.isEmpty()) {
+                LocalDate[] orderDateArr = new LocalDate[2];
+                orderDateArr[0] = orderDateArr[1] = list.get(0).getOrderDate();
+                reqVO.setOrderDate(orderDateArr);
+            }
+        }
+        PageResult<OrderDetailInfoDownstreamRespVO> orderDetailInfoDownstreamRespVOPageResult = orderDetailInfoMapper.selectDownstreamOrderPage(reqVO);
+        List<OrderDetailInfoDownstreamRespVO> list = orderDetailInfoDownstreamRespVOPageResult.getList();
+        if (null != list && !list.isEmpty()) {
+            OrderDetailInfoExportReqVO orderDetailInfoExportReqVO = new OrderDetailInfoExportReqVO();
+            for (OrderDetailInfoDownstreamRespVO orderDetailInfoDownstreamRespVO : list) {
+                orderDetailInfoExportReqVO.setOrderDate(reqVO.getOrderDate());
+                orderDetailInfoExportReqVO.setDownstreamName(orderDetailInfoDownstreamRespVO.getDownstreamName());
+                List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = orderDetailInfoMapper.selectListFacingDownstream(orderDetailInfoExportReqVO);
+                orderDetailInfoDownstreamRespVO.setOrderDetailInfoFacingObjectRespVOList(orderDetailInfoFacingObjectRespVOList);
+            }
+        }
+        return orderDetailInfoDownstreamRespVOPageResult;
+    }
+
+    @Override
+    public OrderDetailInfoFacingObjectRespVO getOrderDetailInfoByCode(String code) {
+        OrderDetailInfoFacingObjectRespVO orderDetailInfoByCode = orderDetailInfoMapper.getOrderDetailInfoByCode(code);
+        if (null != orderDetailInfoByCode) {
+            OrderStatusTrackInfoExportReqVO orderStatusTrackInfoExportReqVO = new OrderStatusTrackInfoExportReqVO();
+            orderStatusTrackInfoExportReqVO.setOrderCode(orderDetailInfoByCode.getOrderCode());
+            List<OrderStatusTrackInfoDO> orderStatusTrackInfoDOList = orderStatusTrackInfoMapper.selectList(orderStatusTrackInfoExportReqVO);
+            if (!orderStatusTrackInfoDOList.isEmpty()) {
+                orderDetailInfoByCode.setOrderStatusTrackInfoDOList(orderStatusTrackInfoDOList);
+            }
+            // 统计信息
+            OrderDetailInfoExportReqVO orderDetailInfoExportReqVO = new OrderDetailInfoExportReqVO();
+            LocalDate[] localDates = new LocalDate[2];
+            localDates[0] = localDates[1] = orderDetailInfoByCode.getOrderDate();
+            orderDetailInfoExportReqVO.setOrderDate(localDates);
+            orderDetailInfoExportReqVO.setUpstreamName(orderDetailInfoByCode.getUpstreamName());
+            List<OrderDetailInfoDO> orderDetailInfoDOList = orderDetailInfoMapper.selectList(orderDetailInfoExportReqVO);
+            int orderTotalCount = orderDetailInfoDOList.size();
+            int putStorageCount = 0, noPutStorageCount = 0, untreatedCount = 0;
+            BigDecimal putStorageOrderTotalAmont = BigDecimal.ZERO;
+            for (OrderDetailInfoDO orderDetailInfoDO: orderDetailInfoDOList) {
+                Integer orderStatus = Integer.valueOf(orderDetailInfoDO.getOrderStatus());
+                if(OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode() != orderStatus
+                        && OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode() != orderStatus){
+                    putStorageCount ++;
+                    putStorageOrderTotalAmont = putStorageOrderTotalAmont.add(orderDetailInfoDO.getOrderCostAmount());
+                }
+                if(OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode() == orderStatus){
+                    noPutStorageCount ++;
+                }
+                if(OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode() == orderStatus){
+                    untreatedCount ++;
+                }
+            }
+            OrderDetailStatisticsInfoVO orderDetailStatisticsInfoVO = new OrderDetailStatisticsInfoVO();
+            orderDetailStatisticsInfoVO.setOrderTotalCount(orderTotalCount);
+            orderDetailStatisticsInfoVO.setPutStorageCount(putStorageCount);
+            orderDetailStatisticsInfoVO.setNoPutStorageCount(noPutStorageCount);
+            orderDetailStatisticsInfoVO.setUntreatedCount(untreatedCount);
+            orderDetailStatisticsInfoVO.setPutStorageOrderTotalAmont(putStorageOrderTotalAmont);
+            orderDetailInfoByCode.setOrderDetailStatisticsInfoVO(orderDetailStatisticsInfoVO);
+        }
+        return orderDetailInfoByCode;
+    }
+
+    @Override
+    public void updateOrderStatus(OrderDetailInfoUpdateReqVO updateReqVO) {
+        // 校验订单状态的有效性
+        // 校验订单的有效性
+        OrderDetailInfoDO orderDetailInfo = this.getOrderDetailInfo(updateReqVO.getId());
+        if (null != orderDetailInfo && null != orderDetailInfo.getId()) {
+            // 校验货物
+            // 变更订单状态
+            OrderDetailInfoDO orderDetailInfoDO = new OrderDetailInfoDO();
+            orderDetailInfoDO.setId(updateReqVO.getId());
+            orderDetailInfoDO.setOrderStatus(updateReqVO.getOrderStatus());
+            orderDetailInfoDO.setGoodsCode(updateReqVO.getGoodsCode());
+            orderDetailInfoMapper.updateById(orderDetailInfoDO);
+
+            // 添加订单跟踪信息
+            OrderStatusTrackInfoDO orderStatusTrackInfoDO = new OrderStatusTrackInfoDO();
+            orderStatusTrackInfoDO.setOrderCode(orderDetailInfo.getOrderCode());
+            orderStatusTrackInfoDO.setOrderAfterChangeStatus(updateReqVO.getOrderStatus());
+            orderStatusTrackInfoMapper.insert(orderStatusTrackInfoDO);
+        }
     }
 
     public static InputStream bufferedImageToInputStream(BufferedImage bufferedImage) throws IOException {

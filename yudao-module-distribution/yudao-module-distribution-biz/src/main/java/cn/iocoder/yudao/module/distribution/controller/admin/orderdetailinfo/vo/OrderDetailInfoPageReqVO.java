@@ -79,4 +79,7 @@ public class OrderDetailInfoPageReqVO extends PageParam {
     @Schema(description = "创建顺序")
     private Integer createSort;
 
+    @Schema(description = "获取编码")
+    private String goodsCode;
+
 }

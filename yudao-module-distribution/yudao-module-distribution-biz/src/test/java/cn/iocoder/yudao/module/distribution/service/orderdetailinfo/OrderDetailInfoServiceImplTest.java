@@ -15,6 +15,8 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import javax.annotation.Resource;
 import org.springframework.context.annotation.Import;
+
+import java.io.IOException;
 import java.util.*;
 import java.time.LocalDateTime;
 
@@ -57,7 +59,7 @@ public class OrderDetailInfoServiceImplTest extends BaseDbUnitTest {
     }
 
     @Test
-    public void testUpdateOrderDetailInfo_success() {
+    public void testUpdateOrderDetailInfo_success() throws IOException {
         // mock 数据
         OrderDetailInfoDO dbOrderDetailInfo = randomPojo(OrderDetailInfoDO.class);
         orderDetailInfoMapper.insert(dbOrderDetailInfo);// @Sql: 先插入出一条存在的数据

@@ -83,4 +83,7 @@ public class OrderDetailInfoExcelVO {
     @ExcelProperty("创建顺序")
     private Integer createSort;
 
+    @ExcelProperty("获取编码")
+    private String goodsCode;
+
 }

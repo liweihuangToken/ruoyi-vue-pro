@@ -2,12 +2,20 @@ package cn.iocoder.yudao.framework.mybatis.core.query;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.ArrayUtils;
+import cn.iocoder.yudao.framework.mybatis.core.util.MyBatisUtils;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import com.github.yulichang.wrapper.enums.DefaultFuncEnum;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * 拓展 MyBatis Plus Join MPJLambdaWrapper 类，主要增加如下功能：
@@ -39,7 +47,7 @@ public class MPJLambdaWrapperX<T> extends MPJLambdaWrapper<T> {
         return this;
     }
 
-    public MPJLambdaWrapperX<T> eqIfPresent(SFunction<T, ?> column, Object val) {
+    public <R> MPJLambdaWrapperX<T> eqIfPresent(SFunction<R, ?> column, Object val) {
         if (ObjectUtil.isNotEmpty(val)) {
             return (MPJLambdaWrapperX<T>) super.eq(column, val);
         }
@@ -108,26 +116,69 @@ public class MPJLambdaWrapperX<T> extends MPJLambdaWrapper<T> {
         return this;
     }
 
-    public <X> MPJLambdaWrapperX<T> selectX(SFunction<X, ?>... columns){
+    public <X> MPJLambdaWrapperX<T> selectX(SFunction<X, ?>... columns) {
         super.select(columns);
         return this;
     }
 
-    public <X> MPJLambdaWrapperX<T> leftJoinX(Class<X> clazz, SFunction<X, ?> left, SFunction<T, ?> right){
+    @Override
+    public <S> MPJLambdaWrapperX<T> selectCount(SFunction<S, ?> column) {
+        return (MPJLambdaWrapperX<T>) super.selectCount(column);
+    }
+
+    @Override
+    public <S, X> MPJLambdaWrapperX<T> selectCount(SFunction<S, ?> column, SFunction<X, ?> alias) {
+        return (MPJLambdaWrapperX<T>) super.selectCount(column, alias);
+    }
+
+    public <S, X> MPJLambdaWrapperX<T> selectSumX(SFunction<S, ?> column, SFunction<X, ?> alias) {
+        return (MPJLambdaWrapperX) super.selectSum(column, alias);
+    }
+
+    public <S, X> MPJLambdaWrapperX<T> selectSumX(SFunction<S, ?> column, String alias) {
+        return (MPJLambdaWrapperX) super.selectSum(column, alias);
+    }
+
+    public <S> MPJLambdaWrapperX<T> selectMaxX(SFunction<S, ?> column) {
+        return (MPJLambdaWrapperX) super.selectMax(column);
+    }
+
+    public <S, X> MPJLambdaWrapperX<T> selectMaxX(SFunction<S, ?> column, SFunction<X, ?> alias) {
+        return (MPJLambdaWrapperX) super.selectMax(column, alias);
+    }
+
+    public <S> MPJLambdaWrapperX selectMinX(SFunction<S, ?> column) {
+        return (MPJLambdaWrapperX) super.selectMin(column);
+    }
+
+    public <S, X> MPJLambdaWrapperX selectMinX(SFunction<S, ?> column, SFunction<X, ?> alias) {
+        return (MPJLambdaWrapperX) super.selectMin(column, alias);
+    }
+
+    public <X> MPJLambdaWrapperX<T> leftJoinX(Class<X> clazz, SFunction<X, ?> left, SFunction<T, ?> right) {
         super.leftJoin(clazz, left, right);
-        return (MPJLambdaWrapperX<T>)this;
+        return (MPJLambdaWrapperX<T>) this;
     }
 
     @Override
-    public <X> MPJLambdaWrapperX<T> orderByAsc(SFunction<X, ?> column){
+    public <R> MPJLambdaWrapperX<T> groupBy(SFunction<R, ?> column) {
+        return (MPJLambdaWrapperX) super.groupBy(column);
+    }
+
+    @Override
+    public <X> MPJLambdaWrapperX<T> orderByAsc(SFunction<X, ?> column) {
         super.orderByAsc(column);
         return this;
     }
 
     @Override
-    public <X> MPJLambdaWrapperX<T> orderByDesc(SFunction<X, ?> column){
+    public <X> MPJLambdaWrapperX<T> orderByDesc(SFunction<X, ?> column) {
         super.orderByAsc(column);
         return this;
     }
 
+    @Override
+    public MPJLambdaWrapperX<T> or() {
+        return (MPJLambdaWrapperX) super.or();
+    }
 }

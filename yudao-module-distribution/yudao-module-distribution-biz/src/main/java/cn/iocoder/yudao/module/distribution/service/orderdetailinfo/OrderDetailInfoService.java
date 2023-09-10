@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.distribution.service.orderdetailinfo;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.*;
 import javax.validation.*;
@@ -28,7 +29,7 @@ public interface OrderDetailInfoService {
      *
      * @param updateReqVO 更新信息
      */
-    void updateOrderDetailInfo(@Valid OrderDetailInfoUpdateReqVO updateReqVO);
+    void updateOrderDetailInfo(@Valid OrderDetailInfoUpdateReqVO updateReqVO) throws IOException;
 
     /**
      * 删除配货订单明细
@@ -93,6 +94,40 @@ public interface OrderDetailInfoService {
      */
     List<OrderDetailInfoFacingObjectRespVO> exportOrderDetailInfoFacingObjectExcel(OrderDetailInfoFacingObjectExportReqVO orderDetailInfoFacingObjectExportReqVO) throws MalformedURLException;
 
+    /**
+     * 订单明细详情面向上下游排序
+     * @param orderDetailInfoFacingObjectRespVOList
+     * @param isFacingDownstream
+     * @return
+     * @throws MalformedURLException
+     */
     List<OrderDetailInfoFacingObjectExcelVO> orderDetailInfoFacingObjectSort(
             List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList, boolean isFacingDownstream) throws MalformedURLException;
+
+    /**
+     * 上传更新订单图片
+     * @param inputStream
+     * @return
+     */
+    String updateOrderPictrue(InputStream inputStream);
+
+    /**
+     * 获取每日下游综合信息
+     * @param reqVO
+     * @return
+     */
+    PageResult<OrderDetailInfoDownstreamRespVO> selectDownstreamOrderPage(OrderDetailInfoDownstreamReqVO reqVO);
+
+    /**
+     * 通过订单编码或货品编码获得配货订单明细
+     * @param code
+     * @return
+     */
+    OrderDetailInfoFacingObjectRespVO getOrderDetailInfoByCode(String code);
+
+    /**
+     * 更新订单操作
+     * @param updateReqVO
+     */
+    void updateOrderStatus(OrderDetailInfoUpdateReqVO updateReqVO);
 }
