@@ -1,46 +1,31 @@
-<template>
+<template class="backgroud">
 	<view class="backgroud">
-		<uni-section title="查询条件" type="line">
+		<uni-section title="退货查询条件" type="line">
 			<uni-easyinput class="uni-mt-10" :focus="focusFlag" v-model="searchValue" placeholder="请手动输入或扫描输入订单编码" @confirm="search"/>
 		</uni-section>
+		<uni-section title="退货综合信息" type="line" padding class="uni-list-item__extra-text">
+			<uni-card title="" padding="10px 0" >
+				<uni-list>
+					<uni-list-item :border="false" title="退货订单总数量" :rightText="retureOrderTotalNumber + ''" />
+					<uni-list-item :border="false" title="退货订单总额(付)" :rightText="retureOrderTotalAmont + ''" />
+				</uni-list>
+			</uni-card>
+		</uni-section>
 		<div class='uni-section-backgroud'>
-			<uni-section title="货物编码" type="line" class="uni-margin-top">
-				<uni-easyinput :focus="focusFlag2" v-model="goodsCode" disabled placeholder="货物编码由系统查询"/>
-			</uni-section>
-			<uni-section title="主体信息" type="line">
-				<uni-card title="标签信息" padding="10px 0" >
-					<image style="width: 100%;" :src="cover"/>
-				</uni-card>
-			</uni-section>
-			<uni-section title="状态跟踪" type="line" padding>
-				<uni-steps :options="list2" active-color="#007AFF" :active="active" direction="column" />
-			</uni-section>
-			<uni-section title="所属下游今日综合信息" type="line" padding class="uni-list-item__extra-text">
-				<uni-card title="结款信息" padding="10px 0" >
-					<uni-list>
-						<uni-list-item :show-extra-icon="true" :border="true" :extra-icon="extraIcon_fee" title="结款金额" :rightText="settlementAmont" />
-						<uni-list-item :border="false" title="待处理订单数" :rightText="untreatedCount" />
-						<uni-list-item :border="false" title="入库订单总额(付)" :rightText="putStorageOrderTotalAmont" />
-						<uni-list-item :border="false" title="退货订单总额(收)" :rightText="retureOrderTotalAmont" />
-					</uni-list>
-				</uni-card>
-				<uni-card title="入库信息" padding="10px 0" >
-					<uni-list>
-						<uni-list-item :border="false" title="订单总数" :rightText="orderTotalCount" />
-						<uni-list-item :border="false" title="已入库订单数" :rightText="putStorageCount" />
-						<uni-list-item :border="false" title="无货订单数" :rightText="noPutStorageCount" />
-						<uni-list-item :border="false" title="待处理订单数" :rightText="untreatedCount" />
-						<uni-list-item :border="false" title="入库订单总额(付)" :rightText="putStorageOrderTotalAmont" />
-						<uni-list-item :show-extra-icon="true" showArrow :extra-icon="extraIcon_come" title="点击查看上游订单入库明细" />
-					</uni-list>
-				</uni-card>
-				<uni-card title="退单信息" padding="10px 0" >
-					<uni-list>
-						<uni-list-item :border="false" title="退货订单总数" :rightText="retureOrderTotalCount" />
-						<uni-list-item :border="false" title="退货订单总额(收)" :rightText="retureOrderTotalAmont" />
-						<uni-list-item :show-extra-icon="true" showArrow :extra-icon="extraIcon_out" title="点击查看上游订单退货明细" />
-					</uni-list>
-				</uni-card>
+			<uni-section title="待退货列表" type="line" class="uni-margin-top">
+				<uni-swipe-action ref="swipeAction">
+					<uni-swipe-action-item
+						v-for="(item, index) in swipeList"
+						:right-options="options"
+						:key="item.id"
+						@change="swipeChange($event, index)"
+						@click="swipeClick($event, index)"
+					>
+						<uni-list-item :title="item.goodsCode" :note="item.orderSalesAmount + ''"
+							:thumb="item.orderGoodsPictureUrl"
+							thumb-size="lg" :rightText="item.size" />
+					</uni-swipe-action-item>
+				</uni-swipe-action>
 			</uni-section>
 			<div class="uni-button-position">
 				<button type="default" class="uni-button" @click="reset">重置</button>
@@ -72,39 +57,23 @@
 				messageText: '这是一条成功提示',
 				value: '',
 				focusFlag: true,
-				focusFlag2: false,
 				isLoading: false,
 				isLoading2: false,
 				isLoading3: false,
-				goodsCode: '',
 				searchValue:'',
-				cover: '',
-				form: {},
-				active: 0,
-				list2: [],
-				extraIcon_come: {
-					color: '#2979ff',
-					size: '22',
-					type: 'download-filled'
-				},
-				extraIcon_out: {
-					color: '#2979ff',
-					size: '22',
-					type: 'upload-filled'
-				},
-				extraIcon_fee: {
-					color: '#2979ff',
-					size: '22',
-					type: 'cart-filled'
-				},
-				orderTotalCount: null,
-				putStorageCount: null,
-				noPutStorageCount: null,
-				untreatedCount: null,
-				putStorageOrderTotalAmont: null,
-				retureOrderTotalCount: null,
-				retureOrderTotalAmont: null,
-				settlementAmont: null,
+				retureOrderTotalNumber: 0,
+				retureOrderTotalAmont: 0,
+				options: [{
+						text: '取消'
+					},
+					{
+						text: '删除',
+						style: {
+							backgroundColor: 'rgb(255,58,49)'
+						}
+					}
+				],
+				swipeList: [],
 			}
 		},
 		computed: {
@@ -115,18 +84,11 @@
 		methods: {
 			reset() {
 				uni.hideKeyboard();
-				this.goodsCode = '';
-				this.cover = '';
 				this.searchValue = '';
-				this.form = {};
-				this.list2 = [];
-				this.orderTotalCount = null;
-				this.putStorageCount = null;
-				this.noPutStorageCount = null;
-				this.untreatedCount = null;
-				this.putStorageOrderTotalAmont = null;
+				this.swipeList = [];
+				this.retureOrderTotalNumber = 0;
+			    this.retureOrderTotalAmont = 0;
 				this.focusFlag = false;
-				this.focusFlag2 = false;
 				this.$nextTick(function() {
 					this.focusFlag = true;
 				});
@@ -152,31 +114,46 @@
 						  this.msgType = 'warn';
 						  this.messageText = '未找到编号为："' + this.searchValue + '"的订单';
 						  this.$refs.message.open();
-						  this.reset();
+						  // this.reset();
+						  this.searchValue = '';
+						  this.focusFlag = false;
+						  this.$nextTick(function() {
+							this.focusFlag = true;
+						  });
 						  return;
 					  }
-					  this.form = row;
-					  this.cover = row.orderOnedimensionalCodePictureUrl;
-					  this.goodsCode = row.goodsCode;
-					  if(row.orderStatusTrackInfoDOList) {
-						  row.orderStatusTrackInfoDOList.forEach((item, index) => {
-						    item.title = this.getDictDataLabel(DICT_TYPE.DISTRIBUTION_ORDER_STATUS, item.orderAfterChangeStatus);
-							item.desc = parseTime(item.createTime);
-						  });
-						  this.list2 = row.orderStatusTrackInfoDOList;
+					  if(this.swipeList.length == 0) {
+						  this.swipeList.push(row);
+					  } else {
+						  for (let index in this.swipeList) {
+								if(row.orderCode == this.swipeList[index].orderCode) {
+									this.msgType = 'warn';
+									this.messageText = '编号为："' + this.searchValue + '"的订单已经在待退货列表中';
+									this.$refs.message.open();
+									// this.reset();
+									this.searchValue = '';
+									this.focusFlag = false;
+									this.$nextTick(function() {
+										this.focusFlag = true;
+									});
+									return;
+								} else {
+									this.swipeList.push(row);
+								}
+						  }
 					  }
-					  if(row.orderDetailStatisticsInfoVO) {
-						  this.orderTotalCount = row.orderDetailStatisticsInfoVO.orderTotalCount + '';
-						  this.putStorageCount = row.orderDetailStatisticsInfoVO.putStorageCount + '';
-						  this.noPutStorageCount = row.orderDetailStatisticsInfoVO.noPutStorageCount + '';
-						  this.untreatedCount = row.orderDetailStatisticsInfoVO.untreatedCount + '';
-						  this.putStorageOrderTotalAmont = row.orderDetailStatisticsInfoVO.putStorageOrderTotalAmont + '';
-						  this.settlementAmont = (row.orderDetailStatisticsInfoVO.putStorageOrderTotalAmont - 0) + ''; 
+					  
+					  var totalAmount = 0;
+					  for (let index in this.swipeList) {
+					  	totalAmount = totalAmount + this.swipeList[index].orderSalesAmount;
 					  }
+					  // console.log(this.swipeList)
+					  this.retureOrderTotalNumber = this.swipeList.length;
+					  this.retureOrderTotalAmont = totalAmount;
+					  this.searchValue = '';
 					  this.focusFlag = false;
-					  this.focusFlag2 = false;
 					  this.$nextTick(function() {
-						this.focusFlag2 = true;
+						this.focusFlag = true;
 					  });
 					});
 				}, 500);
@@ -216,7 +193,26 @@
 				  return;
 				}
 			},
-			
+			swipeChange(e, index) {
+			},
+			swipeClick(e, index) {
+				let {
+					content
+				} = e;
+				if (content.text === '删除') {
+					uni.showModal({
+						title: '提示',
+						content: '是否删除',
+						success: res => {
+							if (res.confirm) {
+								this.swipeList.splice(index, 1);
+							} else if (res.cancel) {
+								console.log('用户点击取消');
+							}
+						}
+					});
+				}
+			},
 		}
 	}
 </script>
@@ -224,7 +220,8 @@
 
 	.backgroud {
 		padding: 15px;
-		background-color: #d4e4ff;
+		background-color: #fff;
+		min-height: 835px;
 		height: 100%;
 	}
 	
@@ -254,5 +251,25 @@
 	    color: #101010;
 	    font-size: 12px;
 	}
+	
+	.content-box {
+		flex: 1;
+		/* #ifdef APP-NVUE */
+		justify-content: center;
+		/* #endif */
+		height: 44px;
+		line-height: 44px;
+		padding: 0 15px;
+		position: relative;
+		background-color: #fff;
+		border-bottom-color: #f5f5f5;
+		border-bottom-width: 1px;
+		border-bottom-style: solid;
+	}
+
+	.content-text {
+		font-size: 15px;
+	}
+
 </style>
 
