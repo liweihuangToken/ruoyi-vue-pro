@@ -18,11 +18,11 @@ public class OrderDetailInfoLableExcelVO {
      *
      * @since 2.1.1
      */
-    @ColumnWidth(27)
+    @ColumnWidth(26)
     @ExcelProperty("订单信息1")
     private URL url1;
 
-    @ColumnWidth(27)
+    @ColumnWidth(26)
     @ExcelProperty("订单信息2")
     private URL url2;
 

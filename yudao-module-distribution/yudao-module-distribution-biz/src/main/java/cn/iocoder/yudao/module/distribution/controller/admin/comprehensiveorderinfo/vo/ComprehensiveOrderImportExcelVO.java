@@ -62,7 +62,7 @@ public class ComprehensiveOrderImportExcelVO {
     private Integer deliveryMethod;
 
     @ExcelProperty("图片")
-    @Excel(name = "图片", type = 2, savePath = "home\\picture")
+    @Excel(name = "图片", type = 2, savePath = "www\\www\\picture")
     @ColumnWidth(12)
     private String picture;
 
