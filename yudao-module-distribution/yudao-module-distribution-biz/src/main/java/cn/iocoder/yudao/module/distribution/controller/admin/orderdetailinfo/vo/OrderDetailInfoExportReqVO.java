@@ -80,4 +80,7 @@ public class OrderDetailInfoExportReqVO {
     @Schema(description = "获取编码")
     private String goodsCode;
 
+    @Schema(description = "条形码图片URL", example = "https://www.iocoder.cn")
+    private String orderBarcodePictureUrl;
+
 }

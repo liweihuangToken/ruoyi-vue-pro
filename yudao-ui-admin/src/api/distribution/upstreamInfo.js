@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 创建配货上游信息
+// 创建配货供应商信息
 export function createUpstreamInfo(data) {
   return request({
     url: '/distribution/upstream-info/create',
@@ -9,7 +9,7 @@ export function createUpstreamInfo(data) {
   })
 }
 
-// 更新配货上游信息
+// 更新配货供应商信息
 export function updateUpstreamInfo(data) {
   return request({
     url: '/distribution/upstream-info/update',
@@ -18,7 +18,7 @@ export function updateUpstreamInfo(data) {
   })
 }
 
-// 删除配货上游信息
+// 删除配货供应商信息
 export function deleteUpstreamInfo(id) {
   return request({
     url: '/distribution/upstream-info/delete?id=' + id,
@@ -26,7 +26,7 @@ export function deleteUpstreamInfo(id) {
   })
 }
 
-// 获得配货上游信息
+// 获得配货供应商信息
 export function getUpstreamInfo(id) {
   return request({
     url: '/distribution/upstream-info/get?id=' + id,
@@ -34,7 +34,7 @@ export function getUpstreamInfo(id) {
   })
 }
 
-// 获得配货上游信息分页
+// 获得配货供应商信息分页
 export function getUpstreamInfoPage(query) {
   return request({
     url: '/distribution/upstream-info/page',
@@ -43,7 +43,7 @@ export function getUpstreamInfoPage(query) {
   })
 }
 
-// 导出配货上游信息 Excel
+// 导出配货供应商信息 Excel
 export function exportUpstreamInfoExcel(query) {
   return request({
     url: '/distribution/upstream-info/export-excel',

@@ -3,17 +3,17 @@
 
     <!-- 搜索工作栏 -->
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="130px">
-      <el-form-item label="上游编号" prop="upstreamCode">
-        <el-input v-model="queryParams.upstreamCode" style="width: 240px" placeholder="请输入上游编号" clearable @keyup.enter.native="handleQuery"/>
+      <el-form-item label="供应商编号" prop="upstreamCode">
+        <el-input v-model="queryParams.upstreamCode" style="width: 240px" placeholder="请输入供应商编号" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item>
-      <el-form-item label="上游名称" prop="upstreamName">
-        <el-input v-model="queryParams.upstreamName" style="width: 240px" placeholder="请输入上游名称" clearable @keyup.enter.native="handleQuery"/>
+      <el-form-item label="供应商名称" prop="upstreamName">
+        <el-input v-model="queryParams.upstreamName" style="width: 240px" placeholder="请输入供应商名称" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item>
-      <el-form-item label="上游别名" prop="upstreamAlias">
-        <el-input v-model="queryParams.upstreamAlias" style="width: 240px" placeholder="请输入上游别名" clearable @keyup.enter.native="handleQuery"/>
+      <el-form-item label="供应商别名" prop="upstreamAlias">
+        <el-input v-model="queryParams.upstreamAlias" style="width: 240px" placeholder="请输入供应商别名" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item>
-      <!-- <el-form-item label="上游地址" prop="upstreamAddress">
-        <el-input v-model="queryParams.upstreamAddress" placeholder="请输入上游地址" clearable @keyup.enter.native="handleQuery"/>
+      <!-- <el-form-item label="供应商地址" prop="upstreamAddress">
+        <el-input v-model="queryParams.upstreamAddress" placeholder="请输入供应商地址" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item> -->
       <el-form-item label="取货方式" prop="pickupMethod">
         <el-select v-model="queryParams.pickupMethod" style="width: 240px" placeholder="请输入取货方式" clearable size="small">
@@ -54,16 +54,16 @@
     <el-table border height="680" header-align="center" :row-class-name="tableRowClassName" v-loading="loading" :data="list">
       <!-- <el-table-column label="主键" align="center" prop="id" /> -->
       <el-table-column label="序号" align="center" min-width="50px" fixed="left" type="index"/>
-      <el-table-column label="上游名称" align="center" prop="upstreamName" min-width="80px" fixed="left"/>
-      <el-table-column label="上游别名" align="center" prop="upstreamAlias" min-width="80px" fixed="left"/>
+      <el-table-column label="供应商名称" align="center" prop="upstreamName" min-width="80px" fixed="left"/>
+      <el-table-column label="供应商别名" align="center" prop="upstreamAlias" min-width="80px" fixed="left"/>
       <el-table-column label="取货方式" align="center" prop="pickupMethod" min-width="80px" fixed="left">
         <template v-slot="scope">
           <dict-tag :type="DICT_TYPE.DISTRIBUTION_DELIVERY_METHOD" :value="scope.row.pickupMethod" />
         </template>
       </el-table-column>
-      <el-table-column label="上游地址" align="center" prop="upstreamAddress" min-width="250px"/>
+      <el-table-column label="供应商地址" align="center" prop="upstreamAddress" min-width="250px"/>
       <el-table-column label="取货顺序" align="center" prop="pickupSort" min-width="80px"/>
-      <el-table-column label="上游编号" align="center" prop="upstreamCode" min-width="150px"/>
+      <el-table-column label="供应商编号" align="center" prop="upstreamCode" min-width="150px"/>
       <el-table-column label="备注" align="center" prop="note" min-width="150px"/>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template v-slot="scope">
@@ -87,17 +87,17 @@
     <!-- 对话框(添加 / 修改) -->
     <el-dialog :title="title" :visible.sync="open" width="500px" v-dialogDrag append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="上游编号" prop="upstreamCode">
-          <el-input v-model="form.upstreamCode" placeholder="请输入上游编号" />
+        <el-form-item label="供应商编号" prop="upstreamCode">
+          <el-input v-model="form.upstreamCode" placeholder="请输入供应商编号" />
         </el-form-item>
-        <el-form-item label="上游名称" prop="upstreamName">
-          <el-input v-model="form.upstreamName" placeholder="请输入上游名称" />
+        <el-form-item label="供应商名称" prop="upstreamName">
+          <el-input v-model="form.upstreamName" placeholder="请输入供应商名称" />
         </el-form-item>
-        <el-form-item label="上游别名" prop="upstreamAlias">
-          <el-input v-model="form.upstreamAlias" placeholder="请输入上游别名" />
+        <el-form-item label="供应商别名" prop="upstreamAlias">
+          <el-input v-model="form.upstreamAlias" placeholder="请输入供应商别名" />
         </el-form-item>
-        <el-form-item label="上游地址" prop="upstreamAddress">
-          <el-input v-model="form.upstreamAddress" placeholder="请输入上游地址" />
+        <el-form-item label="供应商地址" prop="upstreamAddress">
+          <el-input v-model="form.upstreamAddress" placeholder="请输入供应商地址" />
         </el-form-item>
         <el-form-item label="取货方式" prop="pickupMethod">
           <el-select v-model="form.pickupMethod" placeholder="请输入取货方式">
@@ -137,7 +137,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 配货上游信息列表
+      // 配货供应商信息列表
       list: [],
       // 弹出层标题
       title: "",
@@ -160,8 +160,8 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        upstreamCode: [{ required: true, message: "上游编号不能为空", trigger: "blur" }],
-        upstreamName: [{ required: true, message: "上游名称不能为空", trigger: "blur" }],
+        upstreamCode: [{ required: true, message: "供应商编号不能为空", trigger: "blur" }],
+        upstreamName: [{ required: true, message: "供应商名称不能为空", trigger: "blur" }],
       },
       deliveryMethodDictDatas: getDictDatas(DICT_TYPE.DISTRIBUTION_DELIVERY_METHOD),
     };
@@ -213,7 +213,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加配货上游信息";
+      this.title = "添加配货供应商信息";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -222,7 +222,7 @@ export default {
       getUpstreamInfo(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改配货上游信息";
+        this.title = "修改配货供应商信息";
       });
     },
     /** 提交按钮 */
@@ -251,7 +251,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const id = row.id;
-      this.$modal.confirm('是否确认删除配货上游信息编号为"' + id + '"的数据项?').then(function() {
+      this.$modal.confirm('是否确认删除配货供应商信息编号为"' + id + '"的数据项?').then(function() {
           return deleteUpstreamInfo(id);
         }).then(() => {
           this.getList();
@@ -264,11 +264,11 @@ export default {
       let params = {...this.queryParams};
       params.pageNo = undefined;
       params.pageSize = undefined;
-      this.$modal.confirm('是否确认导出所有配货上游信息数据项?').then(() => {
+      this.$modal.confirm('是否确认导出所有配货供应商信息数据项?').then(() => {
           this.exportLoading = true;
           return exportUpstreamInfoExcel(params);
         }).then(response => {
-          this.$download.excel(response, '配货上游信息.xls');
+          this.$download.excel(response, '配货供应商信息.xls');
           this.exportLoading = false;
         }).catch(() => {});
     },

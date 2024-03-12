@@ -97,4 +97,8 @@ public class OrderDetailInfoBaseVO {
     @Schema(description = "获取编码")
     private String goodsCode;
 
+    @Schema(description = "条形码图片URL", requiredMode = Schema.RequiredMode.REQUIRED, example = "https://www.iocoder.cn")
+    @NotNull(message = "条形码图片URL")
+    private String orderBarcodePictureUrl;
+
 }

@@ -1,5 +1,9 @@
 package cn.iocoder.yudao.module.distribution.controller.admin.orderdetailinfo.vo;
 
+/**
+ * 标签导出对象 值适用于A4纸 4 * 9 = 36格
+ */
+
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.annotation.write.style.ContentRowHeight;

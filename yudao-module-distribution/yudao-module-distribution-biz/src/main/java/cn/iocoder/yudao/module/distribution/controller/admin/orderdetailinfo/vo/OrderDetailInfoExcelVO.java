@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 配货订单明细 Excel VO
  *
@@ -85,5 +87,8 @@ public class OrderDetailInfoExcelVO {
 
     @ExcelProperty("获取编码")
     private String goodsCode;
+
+    @ExcelProperty("条形码图片URL")
+    private String orderBarcodePictureUrl;
 
 }

@@ -52,27 +52,31 @@ public class CustomMergeStrategy extends AbstractMergeStrategy {
     }
 
     private void mergeGroupColumn(Sheet sheet) {
+        // 合并条目的开始条目数
         int rowCount = rowIndex;
+        // 循环设置合并的条目数
         for (Integer count : exportFieldGroupCountList) {
+            // ①如果只有单行则不需要进行合并操作
             if (count == 1) {
                 rowCount += count;
                 continue;
             }
-            // 合并单元格
+            // ②如果有需要合并单元格（count > 1）
             int[] ints = StrUtil.splitToInt(NumberUtil.decimalFormat(",#", rowCount + 1), ",");
-            int intTotol = 9;
-            for (int i = 0; i < ints.length; i++) {
-                intTotol = intTotol - ints[i];
-            }
+            // int intTotol = 9;
+            boolean division9Flag = (rowCount + 1) % 9 == 0;
+//            for (int i = 0; i < ints.length; i++) {
+//                intTotol = intTotol - ints[i];
+//            }
             int startRowCount = rowCount;
-            int endRowCount = rowCount + (intTotol < 0 ? 9 + intTotol : intTotol);
+            int endRowCount = rowCount + (division9Flag ? 9 - ((rowCount + 1) % 9) : 9);
             while (endRowCount <= rowCount + count - 1) {
                 if (endRowCount - startRowCount == 0) {
                     startRowCount = endRowCount + 1;
                     endRowCount = endRowCount + 9;
                     continue;
                 }
-                // System.out.println("一：" + startRowCount + "-" + endRowCount + "-" + targetColumnIndex + "-" + targetColumnIndex);
+                System.out.println("一：" + startRowCount + "-" + endRowCount + "-" + targetColumnIndex + "-" + targetColumnIndex);
                 CellRangeAddress cellRangeAddress = new CellRangeAddress(startRowCount, endRowCount, targetColumnIndex, targetColumnIndex);
                 sheet.addMergedRegionUnsafe(cellRangeAddress);
                 startRowCount = endRowCount + 1;
@@ -83,7 +87,7 @@ public class CustomMergeStrategy extends AbstractMergeStrategy {
                 rowCount += count;
                 continue;
             } else {
-                // System.out.println("二：" + startRowCount + "-" + (rowCount + count - 1) + "-" + targetColumnIndex + "-" + targetColumnIndex);
+                System.out.println("二：" + startRowCount + "-" + (rowCount + count - 1) + "-" + targetColumnIndex + "-" + targetColumnIndex);
                 CellRangeAddress cellRangeAddress = new CellRangeAddress(startRowCount, rowCount + count - 1, targetColumnIndex, targetColumnIndex);
                 sheet.addMergedRegionUnsafe(cellRangeAddress);
             }

@@ -33,7 +33,7 @@ public interface FileService {
 
     @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
-    String createFileOtherTransaction(String name, String path, byte[] content);
+    String  createFileOtherTransaction(String name, String path, byte[] content);
 
     /**
      * 删除文件

@@ -12,8 +12,11 @@ import cn.iocoder.yudao.module.distribution.dal.mysql.orderstatustrackinfo.Order
 import cn.iocoder.yudao.module.distribution.enums.DeliveryMethodEnum;
 import cn.iocoder.yudao.module.distribution.enums.OrderStatusEnum;
 import cn.iocoder.yudao.module.distribution.utils.BarcodeUtil;
+import cn.iocoder.yudao.module.distribution.utils.FontUtil;
 import cn.iocoder.yudao.module.distribution.utils.SucodeUtil;
 import cn.iocoder.yudao.module.infra.service.file.FileService;
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -168,7 +171,10 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
         // 图片宽高
         int width = 480;
         int height = 310;
-        String fontName = "华文楷体";
+        // String fontPath = "fonts/叶根友疾风草书.ttf";
+        // String fontPath = "fonts/方正黄草_GBK.ttf";
+        // String fontPath = "fonts/李洤标准草书.ttf";
+        String fontPath = "fonts/叶根友刀锋黑草-企业版.ttf";
         // 得到图片缓冲区, INT精确度达到一定,RGB三原色
         BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         bi.createGraphics();
@@ -199,7 +205,7 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
         g2.drawLine(260, 84, 260, 231);
 
         // 设置标题的字体,字号,大小
-        Font titleFont = new Font(fontName, Font.BOLD, 35);
+        Font titleFont = FontUtil.loadLocalFont(fontPath, Font.BOLD, 35);
         g2.setFont(titleFont);
         // 抗锯齿
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -211,7 +217,7 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
         g2.drawString(downstreamName, titleWidthX, 50);
 
         // 设置标题下编码小字字体、字号、大小, 小标题为随机花码 + 售价花码 + 随机花码 + 成本花码 + 随机花码
-        g2.setFont(new Font(fontName, Font.ITALIC, 20));
+        g2.setFont(new Font("华文楷体", Font.ITALIC, 20));
         StringBuffer littleTitleSb = new StringBuffer("ATUCODE：");
         littleTitleSb.append(SucodeUtil.getRandomSucode())
                 .append(SucodeUtil.getSucode(NumberUtil.toStr(orderDetailInfoFacingObjectRespVO.getOrderSalesAmount())))
@@ -221,7 +227,7 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
         g2.drawString(littleTitleSb.toString(), (width - 280) / 2, 75);
 
         // 设置表格内其他参数
-        g2.setFont(new Font(fontName, Font.BOLD, 23));
+        g2.setFont(FontUtil.loadLocalFont(fontPath, Font.BOLD, 23));
         g2.drawString("尺码", 20, 114);
         g2.drawString(orderDetailInfoFacingObjectRespVO.getSize(), 115, 114);
 
@@ -244,7 +250,45 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
 
         // 释放对象并生成标签图片 png表示保存格式
         g2.dispose();
-        String fileName = orderCode + ".png";
+
+        // 为标签添加水印
+        InputStream fontStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("fonts/shuiyin.png");
+        BufferedImage bufferedImage = Thumbnails.of(bi).watermark(Positions.CENTER, ImageIO.read(fontStream), 0.45f).scale(1f).asBufferedImage();
+        String fileName = "lable_" + orderCode + ".png";
+        String fileUrl = fileService.createFile(fileName, null, IoUtil.readBytes(bufferedImageToInputStream(bufferedImage)));
+        return fileUrl;
+    }
+
+    @Override
+    public String assignOrderInfoBarcodeLabel(OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO,
+                                              String orderCodeUrl, String orderCode) throws IOException {
+        int width = 320;
+        int height = 115;
+        String fontName = "华文楷体";
+        // 得到图片缓冲区, INT精确度达到一定,RGB三原色
+        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        bi.createGraphics();
+        // 得到它的绘制环境(这张图片的笔)
+        Graphics2D g2 = (Graphics2D) bi.getGraphics();
+        // 设置背景颜色,并填充满张图片
+        g2.setColor(Color.WHITE);
+        g2.fillRect(0, 0, width, height);
+        // 设置图片字体颜色
+        g2.setColor(Color.black);
+
+        // 设置标题的字体,字号,大小
+        g2.setFont(new Font(fontName, Font.BOLD, 40));
+        g2.drawString("禁 止 撕 毁", width / 2 - 100, 45);
+        // 抗锯齿
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // 画标签一维码
+        InputStream oneCodeInputStream = new URL(orderCodeUrl).openConnection().getInputStream();
+        BufferedImage image3 = ImageIO.read(oneCodeInputStream);
+        g2.drawImage(image3, 15, 50, 290, 50, null);
+
+        g2.dispose();
+        String fileName = "barcode_" + orderCode + ".png";
         String fileUrl = fileService.createFile(fileName, null, IoUtil.readBytes(bufferedImageToInputStream(bi)));
         return fileUrl;
     }
@@ -282,6 +326,72 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
             orderDetailInfoLableRespVoAllList.addAll(orderDetailInfoLableRespVoList);
         }
         return orderDetailInfoLableRespVoAllList;
+    }
+
+    @Override
+    public List<OrderDetailInfoBarcodeLableExcelVO> exportOrderDetailInfoBarCodeLableExcel(OrderDetailInfoExportReqVO orderDetailInfoExportReqVO) throws MalformedURLException {
+        // 面向下游排序获取订单信息
+        List<OrderDetailInfoBarcodeLableExcelVO> orderDetailInfoBarcodeLableRespVoAllList = new ArrayList<>();
+        List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = orderDetailInfoMapper.selectListFacingDownstream(orderDetailInfoExportReqVO);
+        List<List<OrderDetailInfoFacingObjectRespVO>> urlPageList = ListUtil.split(orderDetailInfoFacingObjectRespVOList, 144);
+        for (List<OrderDetailInfoFacingObjectRespVO> urlPage : urlPageList) {
+            List<OrderDetailInfoBarcodeLableExcelVO> orderDetailInfoBarcodeLableRespVoList = new ArrayList<>();
+            for (int i = 0; i < 24; i++) {
+                orderDetailInfoBarcodeLableRespVoList.add(new OrderDetailInfoBarcodeLableExcelVO());
+            }
+            List<List<OrderDetailInfoFacingObjectRespVO>> urlRowList = ListUtil.split(urlPage, 24);
+            for (int i = 0; i < urlRowList.size(); i++) {
+                List<OrderDetailInfoFacingObjectRespVO> urlRow = urlRowList.get(i);
+                for (int j = 0; j < urlRow.size(); j++) {
+                    String url = urlRow.get(j).getOrderBarcodePictureUrl();
+                    if (i == 0) {
+                        orderDetailInfoBarcodeLableRespVoList.get(j).setUrl1(new URL(url));
+                    }
+                    if (i == 1) {
+                        orderDetailInfoBarcodeLableRespVoList.get(j).setUrl2(new URL(url));
+                    }
+                    if (i == 2) {
+                        orderDetailInfoBarcodeLableRespVoList.get(j).setUrl3(new URL(url));
+                    }
+                    if (i == 3) {
+                        orderDetailInfoBarcodeLableRespVoList.get(j).setUrl4(new URL(url));
+                    }
+                    if (i == 4) {
+                        orderDetailInfoBarcodeLableRespVoList.get(j).setUrl5(new URL(url));
+                    }
+                    if (i == 5) {
+                        orderDetailInfoBarcodeLableRespVoList.get(j).setUrl6(new URL(url));
+                    }
+                }
+            }
+            orderDetailInfoBarcodeLableRespVoAllList.addAll(orderDetailInfoBarcodeLableRespVoList);
+        }
+        return orderDetailInfoBarcodeLableRespVoAllList;
+    }
+
+    @Override
+    public PageResult<OrderDetailInfoUpstreamRespVO> selectUpstreamOrderPage(OrderDetailInfoUpstreamReqVO reqVO) {
+        // 如果没有传所属日期则取最近订单的所属日期
+        if (null == reqVO.getOrderDate() || 0 == reqVO.getOrderDate().length) {
+            List<OrderDetailInfoUpstreamRespVO> list = orderDetailInfoMapper.selectUpstreamOrderPage(reqVO).getList();
+            if (null != list && !list.isEmpty()) {
+                LocalDate[] orderDateArr = new LocalDate[2];
+                orderDateArr[0] = orderDateArr[1] = list.get(0).getOrderDate();
+                reqVO.setOrderDate(orderDateArr);
+            }
+        }
+        PageResult<OrderDetailInfoUpstreamRespVO> orderDetailInfoUpstreamRespVOPageResult = orderDetailInfoMapper.selectUpstreamOrderPage(reqVO);
+        List<OrderDetailInfoUpstreamRespVO> list = orderDetailInfoUpstreamRespVOPageResult.getList();
+        if (null != list && !list.isEmpty()) {
+            OrderDetailInfoExportReqVO orderDetailInfoExportReqVO = new OrderDetailInfoExportReqVO();
+            for (OrderDetailInfoUpstreamRespVO orderDetailInfoUpstreamRespVO : list) {
+                orderDetailInfoExportReqVO.setOrderDate(reqVO.getOrderDate());
+                orderDetailInfoExportReqVO.setUpstreamName(orderDetailInfoUpstreamRespVO.getUpstreamName());
+                List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = orderDetailInfoMapper.selectListFacingUpstream(orderDetailInfoExportReqVO);
+                orderDetailInfoUpstreamRespVO.setOrderDetailInfoFacingObjectRespVOList(orderDetailInfoFacingObjectRespVOList);
+            }
+        }
+        return orderDetailInfoUpstreamRespVOPageResult;
     }
 
     @Override
@@ -352,7 +462,7 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
             List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList, boolean isFacingDownstream) throws MalformedURLException {
         List<OrderDetailInfoFacingObjectExcelVO> orderDetailInfoFacingObjectExcelVOAllList = new ArrayList<>();
         // 分解查询结果按每页按列顺序输出
-        List<List<OrderDetailInfoFacingObjectRespVO>> urlPageList = ListUtil.split(orderDetailInfoFacingObjectRespVOList, 27);
+        List<List<OrderDetailInfoFacingObjectRespVO>> urlPageList = ListUtil.split(orderDetailInfoFacingObjectRespVOList, 36);
         for (List<OrderDetailInfoFacingObjectRespVO> urlPage : urlPageList) {
             List<OrderDetailInfoFacingObjectExcelVO> orderDetailInfoFacingObjectExcelVOList = new ArrayList<>();
             for (int i = 0; i < 9; i++) {
@@ -377,6 +487,10 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
                     if (i == 2) {
                         orderDetailInfoFacingObjectExcelVOList.get(j).setObjectName3(name);
                         orderDetailInfoFacingObjectExcelVOList.get(j).setUrl3(new URL(url));
+                    }
+                    if (i == 3) {
+                        orderDetailInfoFacingObjectExcelVOList.get(j).setObjectName4(name);
+                        orderDetailInfoFacingObjectExcelVOList.get(j).setUrl4(new URL(url));
                     }
                 }
             }

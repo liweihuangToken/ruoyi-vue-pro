@@ -47,6 +47,7 @@
 				<button type="primary" class="uni-button" :loading="isLoading" @click="upateStatus('2')">无货</button>
 				<button type="warn" class="uni-button" :loading="isLoading2" @click="upateStatus('1')">普通入库</button>
 				<button type="warn" class="uni-button" :loading="isLoading3">付款入库</button>
+				<button type="primary" class="uni-button" @click="barcode">扫码测试</button>
 				<!-- <button type="warn" class="uni-button">撤销入库</button> -->
 			</div>
 		</div>
@@ -217,7 +218,17 @@
 				  return;
 				}
 			},
-			
+			barcode() {
+				// 调起条码扫描
+				uni.scanCode({
+					scanType: ['barCode'],
+					success: function (res) {
+						this.searchValue = res.result;
+						this.goodsCode = res.result;
+						console.log('条码内容：' + res.result);
+					}
+				});
+			},
 		}
 	}
 </script>

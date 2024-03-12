@@ -114,5 +114,9 @@ public class OrderDetailInfoDO extends BaseDO {
      * 创建顺序
      */
     private Integer createSort;
+    /**
+     * 条形码图片URL
+     */
+    private String orderBarcodePictureUrl;
 
 }

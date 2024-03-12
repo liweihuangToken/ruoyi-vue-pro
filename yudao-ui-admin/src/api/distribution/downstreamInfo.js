@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 创建配货下游信息
+// 创建配货客户信息
 export function createDownstreamInfo(data) {
   return request({
     url: '/distribution/downstream-info/create',
@@ -9,7 +9,7 @@ export function createDownstreamInfo(data) {
   })
 }
 
-// 更新配货下游信息
+// 更新配货客户信息
 export function updateDownstreamInfo(data) {
   return request({
     url: '/distribution/downstream-info/update',
@@ -18,7 +18,7 @@ export function updateDownstreamInfo(data) {
   })
 }
 
-// 删除配货下游信息
+// 删除配货客户信息
 export function deleteDownstreamInfo(id) {
   return request({
     url: '/distribution/downstream-info/delete?id=' + id,
@@ -26,7 +26,7 @@ export function deleteDownstreamInfo(id) {
   })
 }
 
-// 获得配货下游信息
+// 获得配货客户信息
 export function getDownstreamInfo(id) {
   return request({
     url: '/distribution/downstream-info/get?id=' + id,
@@ -34,7 +34,7 @@ export function getDownstreamInfo(id) {
   })
 }
 
-// 获得配货下游信息分页
+// 获得配货客户信息分页
 export function getDownstreamInfoPage(query) {
   return request({
     url: '/distribution/downstream-info/page',
@@ -43,7 +43,7 @@ export function getDownstreamInfoPage(query) {
   })
 }
 
-// 导出配货下游信息 Excel
+// 导出配货客户信息 Excel
 export function exportDownstreamInfoExcel(query) {
   return request({
     url: '/distribution/downstream-info/export-excel',

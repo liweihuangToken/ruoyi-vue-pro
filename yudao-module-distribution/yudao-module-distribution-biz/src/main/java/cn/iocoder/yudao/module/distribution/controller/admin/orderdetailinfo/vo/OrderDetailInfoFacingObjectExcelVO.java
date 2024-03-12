@@ -37,27 +37,35 @@ public class OrderDetailInfoFacingObjectExcelVO {
      *
      * @since 2.1.1
      */
-    @ColumnWidth(8)
+    @ColumnWidth(7)
     @ExcelProperty("对象名称1")
     private String objectName1;
 
-    @ColumnWidth(27)
+    @ColumnWidth(21)
     @ExcelProperty("订单信息1")
     private URL url1;
 
-    @ColumnWidth(9)
+    @ColumnWidth(7)
     @ExcelProperty("对象名称2")
     private String objectName2;
 
-    @ColumnWidth(27)
+    @ColumnWidth(21)
     @ExcelProperty("订单信息2")
     private URL url2;
 
-    @ColumnWidth(9)
+    @ColumnWidth(7)
     @ExcelProperty("对象名称3")
     private String objectName3;
 
-    @ColumnWidth(27)
+    @ColumnWidth(21)
     @ExcelProperty("订单信息3")
     private URL url3;
+
+    @ColumnWidth(7)
+    @ExcelProperty("对象名称4")
+    private String objectName4;
+
+    @ColumnWidth(21)
+    @ExcelProperty("订单信息4")
+    private URL url4;
 }

@@ -28,11 +28,11 @@
       <el-form-item label="订单计划利润金额" prop="orderPlanProfitAmount">
         <el-input v-model="queryParams.orderPlanProfitAmount" placeholder="请输入订单计划利润金额" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item> -->
-      <el-form-item label="上游名称" prop="upstreamName">
-        <el-input v-model="queryParams.upstreamName" style="width: 240px" placeholder="请输入上游名称" clearable @keyup.enter.native="handleQuery"/>
+      <el-form-item label="供应商名称" prop="upstreamName">
+        <el-input v-model="queryParams.upstreamName" style="width: 240px" placeholder="请输入供应商名称" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item>
-      <el-form-item label="下游名称" prop="downstreamName">
-        <el-input v-model="queryParams.downstreamName" style="width: 240px" placeholder="请输入下游名称" clearable @keyup.enter.native="handleQuery"/>
+      <el-form-item label="客户名称" prop="downstreamName">
+        <el-input v-model="queryParams.downstreamName" style="width: 240px" placeholder="请输入客户名称" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item>
       <el-form-item label="订单状态" prop="orderStatus">
         <el-select v-model="queryParams.orderStatus" style="width: 240px" placeholder="请选择订单状态" clearable size="small">
@@ -91,12 +91,16 @@
                    v-hasPermi="['distribution:order-detail-info:export-lable-excel']">标签导出</el-button>
       </el-col>
       <el-col :span="1.5">
+        <el-button type="primary" plain icon="el-icon-download" size="mini" @click="handleBarcodeLableExport" :loading="exportLoading"
+                   v-hasPermi="['distribution:order-detail-info:export-barcode']">条码导出</el-button>
+      </el-col>
+      <el-col :span="1.5">
         <el-button type="primary" plain icon="el-icon-download" size="mini" @click="handleFacingObjectExport(true)" :loading="exportLoading"
-                   v-hasPermi="['distribution:order-detail-info:export-facing-excel']">面向下游导出</el-button>
+                   v-hasPermi="['distribution:order-detail-info:export-facing-excel']">面向客户导出</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="primary" plain icon="el-icon-download" size="mini" @click="handleFacingObjectExport(false)" :loading="exportLoading"
-                   v-hasPermi="['distribution:order-detail-info:export-facing-excel']">面向上游导出</el-button>
+                   v-hasPermi="['distribution:order-detail-info:export-facing-excel']">面向供应商导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -106,8 +110,8 @@
       <!-- <el-table-column label="主键" align="center" prop="id" /> -->
       <el-table-column label="序号" align="center" min-width="50px" fixed="left" type="index"/>
       <el-table-column label="订单所属日期" align="center" prop="orderDate" min-width="100px" fixed="left"/>
-      <el-table-column label="下游名称" align="center" prop="downstreamName" min-width="80px" fixed="left"/>
-      <el-table-column label="上游名称" align="center" prop="upstreamName" min-width="80px" fixed="left"/>
+      <el-table-column label="客户名称" align="center" prop="downstreamName" min-width="80px" fixed="left"/>
+      <el-table-column label="供应商名称" align="center" prop="upstreamName" min-width="80px" fixed="left"/>
       <el-table-column label="订单编号" align="center" prop="orderCode" min-width="150px" fixed="left"/>
       <el-table-column label="订单图片" align="center" prop="content" min-width="130px" fixed="left">
         <template v-slot="scope">
@@ -171,11 +175,11 @@
         <el-form-item label="订单所属日期" prop="orderDate">
           <el-date-picker clearable v-model="form.orderDate" type="date" placeholder="选择订单所属日期" :disabled = "isEdit"/>
         </el-form-item>
-        <el-form-item label="上游名称" prop="upstreamName">
-          <el-input v-model="form.upstreamName" placeholder="请输入上游名称" />
+        <el-form-item label="供应商名称" prop="upstreamName">
+          <el-input v-model="form.upstreamName" placeholder="请输入供应商名称" />
         </el-form-item>
-        <el-form-item label="下游名称" prop="downstreamName">
-          <el-input v-model="form.downstreamName" placeholder="请输入下游名称" />
+        <el-form-item label="客户名称" prop="downstreamName">
+          <el-input v-model="form.downstreamName" placeholder="请输入客户名称" />
         </el-form-item>
         <el-form-item label="订单编号" prop="orderCode">
           <el-input v-model="form.orderCode" placeholder="请输入订单编号" :disabled="isEdit"/>
@@ -292,6 +296,7 @@ import { createOrderDetailInfo,
         updateOrderPictrue,
         exportOrderDetailInfoExcel,
         exportOrderDetailInfoLableExcel,
+        exportOrderDetailInfoBarcodeLableExcel,
         exportOrderDetailInfoFacingObjectExcel,
         } from "@/api/distribution/orderDetailInfo";
 import ImagePreview from "@/components/ImagePreview";
@@ -358,8 +363,8 @@ export default {
         orderSalesAmount: [{ required: true, message: "订单销售金额不能为空", trigger: "blur" }],
         orderCostAmount: [{ required: true, message: "订单成本金额不能为空", trigger: "blur" }],
         orderPlanProfitAmount: [{ required: true, message: "订单计划利润金额不能为空", trigger: "blur" }],
-        upstreamName: [{ required: true, message: "上游名称不能为空", trigger: "blur" }],
-        downstreamName: [{ required: true, message: "下游名称不能为空", trigger: "blur" }],
+        upstreamName: [{ required: true, message: "供应商名称不能为空", trigger: "blur" }],
+        downstreamName: [{ required: true, message: "客户名称不能为空", trigger: "blur" }],
         orderStatus: [{ required: true, message: "订单状态不能为空", trigger: "blur" }],
         settlementFlag: [{ required: true, message: "结算标志不能为空", trigger: "blur" }],
         size: [{ required: true, message: "尺码不能为空", trigger: "blur" }],
@@ -509,18 +514,33 @@ export default {
         }).catch(() => {});
     },
 
-    /** 面向上下游导出订单按钮操作 */
+    /** 导出条形码标签按钮操作 */
+    handleBarcodeLableExport() {
+      // 处理查询参数
+      let params = {...this.queryParams};
+      params.pageNo = undefined;
+      params.pageSize = undefined;
+      this.$modal.confirm('是否确认导出所有配货订单条形码标签Excel?').then(() => {
+          this.exportLoading = true;
+          return exportOrderDetailInfoBarcodeLableExcel(params);
+        }).then(response => {
+          this.$download.excel(response, '配货订单明细条形码标签.xls');
+          this.exportLoading = false;
+        }).catch(() => {});
+    },
+
+    /** 面向上客户导出订单按钮操作 */
     handleFacingObjectExport(flag) {
       // 处理查询参数
       let params = {...this.queryParams};
       params.pageNo = undefined;
       params.pageSize = undefined;
       params.isFacingDownstream = flag;
-      this.$modal.confirm('是否确认面向' + (flag?'下游':'上游') + '导出所有配货订单标签Excel?').then(() => {
+      this.$modal.confirm('是否确认面向' + (flag?'客户':'供应商') + '导出所有配货订单标签Excel?').then(() => {
           this.exportLoading = true;
           return exportOrderDetailInfoFacingObjectExcel(params);
         }).then(response => {
-          this.$download.excel(response, '面向' + (flag?'下游':'上游') + '配货订单明细标签.xls');
+          this.$download.excel(response, '面向' + (flag?'客户':'供应商') + '配货订单明细标签.xls');
           this.exportLoading = false;
         }).catch(() => {});
     },

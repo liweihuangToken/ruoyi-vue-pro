@@ -72,8 +72,18 @@ export function exportOrderDetailInfoLableExcel(query) {
   })
 }
 
+// 导出配货订单明细条形码标签 Excel
+export function exportOrderDetailInfoBarcodeLableExcel(query) {
+  return request({
+    url: '/distribution/order-detail-info/export-barcode-lable-excel',
+    method: 'get',
+    params: query,
+    responseType: 'blob'
+  })
+}
 
-// 面向上下游导出配货订单明细 Excel
+
+// 面向上客户导出配货订单明细 Excel
 export function exportOrderDetailInfoFacingObjectExcel(query) {
   return request({
     url: '/distribution/order-detail-info/export-facing-excel',
@@ -83,10 +93,19 @@ export function exportOrderDetailInfoFacingObjectExcel(query) {
   })
 }
 
-// 获得下游配货订单综合分页
+// 获得客户配货订单综合分页
 export function getDownstreamOrderPage(query) {
   return request({
     url: '/distribution/downstream-order-detail-info/page',
+    method: 'get',
+    params: query
+  })
+}
+
+// 获得供应商配货订单综合分页
+export function getUpstreamOrderPage(query) {
+  return request({
+    url: '/distribution/upstream-order-detail-info/page',
     method: 'get',
     params: query
   })

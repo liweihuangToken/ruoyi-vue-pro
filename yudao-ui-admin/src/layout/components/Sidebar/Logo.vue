@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: '芋道管理系统',
+      title: 'A圖工作室',
       logo: logoImg
     }
   }

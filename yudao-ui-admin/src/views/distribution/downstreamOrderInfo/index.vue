@@ -7,11 +7,11 @@
         <el-date-picker v-model="queryParams.orderDate" style="width: 260px" value-format="yyyy-MM-dd HH:mm:ss" type="daterange"
                         range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['00:00:00', '23:59:59']" />
       </el-form-item>
-      <el-form-item label="下游名称" prop="downstreamName">
-        <el-input v-model="queryParams.downstreamName" style="width: 260px" placeholder="请输入下游名称" clearable @keyup.enter.native="handleQuery"/>
+      <el-form-item label="客户名称" prop="downstreamName">
+        <el-input v-model="queryParams.downstreamName" style="width: 260px" placeholder="请输入客户名称" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item>
-      <el-form-item label="下游简称" prop="downstreamAlias">
-        <el-input v-model="queryParams.downstreamAlias" style="width: 260px" placeholder="请输入下游简称" clearable @keyup.enter.native="handleQuery"/>
+      <el-form-item label="客户简称" prop="downstreamAlias">
+        <el-input v-model="queryParams.downstreamAlias" style="width: 260px" placeholder="请输入客户简称" clearable @keyup.enter.native="handleQuery"/>
       </el-form-item>
       <el-form-item label="送货方式" prop="deliveryMethod">
         <el-select v-model="queryParams.deliveryMethod" style="width: 260px" placeholder="请输入送货方式" clearable size="small">
@@ -29,7 +29,7 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" plain icon="el-icon-download" size="mini" @click="handleFacingObjectExport(true)" :loading="exportLoading"
-                   v-hasPermi="['distribution:order-detail-info:export-facing-excel']">面向下游导出</el-button>
+                   v-hasPermi="['distribution:order-detail-info:export-facing-excel']">面向客户导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -47,7 +47,7 @@
                     <image-preview v-if="scope.row.orderOnedimensionalCodePictureUrl" :src="scope.row.orderOnedimensionalCodePictureUrl" :width="'100px'"/>
                   </template>
                 </el-table-column>
-                <el-table-column label="上游名称" align="center" prop="upstreamName" min-width="50px"/>
+                <el-table-column label="供应商名称" align="center" prop="upstreamName" min-width="50px"/>
                 <el-table-column label="订单状态" align="center" prop="orderStatus" min-width="50px">
                   <template v-slot="scope">
                     <dict-tag :type="DICT_TYPE.DISTRIBUTION_ORDER_STATUS" :value="scope.row.orderStatus" />
@@ -67,7 +67,7 @@
                     <image-preview v-if="scope.row.orderOnedimensionalCodePictureUrl" :src="scope.row.orderOnedimensionalCodePictureUrl" :width="'100px'"/>
                   </template>
                 </el-table-column>
-                <el-table-column label="上游名称1" align="center" prop="upstreamName" min-width="50px"/>
+                <el-table-column label="供应商名称1" align="center" prop="upstreamName" min-width="50px"/>
                 <el-table-column label="订单状态1" align="center" prop="orderStatus" min-width="50px">
                   <template v-slot="scope">
                     <dict-tag :type="DICT_TYPE.DISTRIBUTION_ORDER_STATUS" :value="scope.row.orderStatus" />
@@ -84,8 +84,8 @@
         </template>
       </el-table-column>
       <el-table-column label="订单所属日期" align="center" prop="orderDate" min-width="100px"/>
-      <el-table-column label="下游名称" align="center" prop="downstreamName" min-width="80px"/>
-      <el-table-column label="下游简称" align="center" prop="downstreamAlias" min-width="80px"/>
+      <el-table-column label="客户名称" align="center" prop="downstreamName" min-width="80px"/>
+      <el-table-column label="客户简称" align="center" prop="downstreamAlias" min-width="80px"/>
       <el-table-column label="送货方式" align="center" prop="deliveryMethod" min-width="80px">
         <template v-slot="scope">
           <dict-tag :type="DICT_TYPE.DISTRIBUTION_DELIVERY_METHOD" :value="scope.row.deliveryMethod" />
@@ -95,7 +95,7 @@
       <el-table-column label="订单销售总金额(单位:元)" align="center" prop="totalOrderSalesAmount" min-width="150px"/>
       <el-table-column label="订单成本总金额(单位:元)" align="center" prop="totalOrderCostAmount" min-width="150px"/>
       <el-table-column label="订单计划利润总金额(单位:元)" align="center" prop="totalOrderPlanProfitAmount" min-width="150px"/>
-      <el-table-column label="下游地址" align="center" prop="downstreamAddress" min-width="250px"/>
+      <el-table-column label="客户地址" align="center" prop="downstreamAddress" min-width="250px"/>
     </el-table>
     <!-- 分页组件 -->
     <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNo" :limit.sync="queryParams.pageSize"
@@ -173,18 +173,18 @@ export default {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-    /** 面向上下游导出订单按钮操作 */
+    /** 面向上客户导出订单按钮操作 */
     handleFacingObjectExport(flag) {
       // 处理查询参数
       let params = {...this.queryParams};
       params.pageNo = undefined;
       params.pageSize = undefined;
       params.isFacingDownstream = flag;
-      this.$modal.confirm('是否确认面向' + (flag?'下游':'上游') + '导出所有配货订单标签Excel?').then(() => {
+      this.$modal.confirm('是否确认面向' + (flag?'客户':'供应商') + '导出所有配货订单标签Excel?').then(() => {
           this.exportLoading = true;
           return exportOrderDetailInfoFacingObjectExcel(params);
         }).then(response => {
-          this.$download.excel(response, '面向' + (flag?'下游':'上游') + '配货订单明细标签.xls');
+          this.$download.excel(response, '面向' + (flag?'客户':'供应商') + '配货订单明细标签.xls');
           this.exportLoading = false;
         }).catch(() => {});
     }

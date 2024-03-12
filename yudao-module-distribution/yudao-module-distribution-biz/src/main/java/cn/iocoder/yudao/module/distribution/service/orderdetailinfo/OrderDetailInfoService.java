@@ -79,6 +79,9 @@ public interface OrderDetailInfoService {
      */
     String assignOrderInfoLabel(OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO, String orderCodeUrl, String orderCode) throws IOException;
 
+    String assignOrderInfoBarcodeLabel(OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO,
+                                       String orderCodeUrl, String orderCode) throws IOException;
+
     /**
      * 面向上下游获取排序后订单标签信息
      * @param orderDetailInfoExportReqVO
@@ -130,4 +133,20 @@ public interface OrderDetailInfoService {
      * @param updateReqVO
      */
     void updateOrderStatus(OrderDetailInfoUpdateReqVO updateReqVO);
+
+
+    /**
+     * 获得配货订单明细列表, 用于 条形码 Excel 导出
+     *
+     * @param exportReqVO 查询条件
+     * @return 配货订单条形码列表
+     */
+    List<OrderDetailInfoBarcodeLableExcelVO> exportOrderDetailInfoBarCodeLableExcel(OrderDetailInfoExportReqVO exportReqVO) throws MalformedURLException;
+
+    /**
+     * 获取每日上游综合信息
+     * @param reqVO
+     * @return
+     */
+    PageResult<OrderDetailInfoUpstreamRespVO> selectUpstreamOrderPage(OrderDetailInfoUpstreamReqVO reqVO);
 }

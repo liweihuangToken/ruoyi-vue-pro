@@ -230,11 +230,13 @@ public class ComprehensiveOrderInfoServiceImpl implements ComprehensiveOrderInfo
 
             // 生成订单标签并上传到文件管理
             String labelUrl = orderDetailInfoService.assignOrderInfoLabel(orderDetailInfoFacingObjectRespVO, url, orderCode);
+            String barcodeUrl = orderDetailInfoService.assignOrderInfoBarcodeLabel(orderDetailInfoFacingObjectRespVO, url, orderCode);
             // 组装更新条目
             OrderDetailInfoDO orderDetailInfoUpdateDO = new OrderDetailInfoDO();
             orderDetailInfoUpdateDO.setId(orderDetailInfoFacingObjectRespVO.getId());
             orderDetailInfoUpdateDO.setOrderCode(orderCode);
             orderDetailInfoUpdateDO.setOrderOnedimensionalCodePictureUrl(labelUrl);
+            orderDetailInfoUpdateDO.setOrderBarcodePictureUrl(barcodeUrl);
             orderDetailInfoUpdateDOList.add(orderDetailInfoUpdateDO);
 
             // 组装订单状态跟踪条目

@@ -105,7 +105,8 @@ public class OrderDetailInfoController {
         ExcelUtils.write(response, "配货订单明细.xls", "数据", OrderDetailInfoExcelVO.class, datas);
     }
 
-    @RequestMapping(value = "/update-order-pictrue", method = {RequestMethod.POST, RequestMethod.PUT}) // 解决 uni-app 不支持 Put 上传文件的问题
+    @RequestMapping(value = "/update-order-pictrue", method = {RequestMethod.POST, RequestMethod.PUT})
+    // 解决 uni-app 不支持 Put 上传文件的问题
     @Operation(summary = "上传订单图片")
     public CommonResult<String> updateOrderPictrue(@RequestParam("file") MultipartFile file) throws Exception {
         if (file.isEmpty()) {
@@ -124,6 +125,17 @@ public class OrderDetailInfoController {
                                                 HttpServletResponse response) throws IOException {
         List<OrderDetailInfoLableExcelVO> list = orderDetailInfoService.exportOrderDetailInfoLableExcel(exportReqVO);
         ExcelUtils.write(response, "配货订单明细.xls", "数据", OrderDetailInfoLableExcelVO.class, list, false);
+    }
+
+
+    @GetMapping("/export-barcode-lable-excel")
+    @Operation(summary = "导出配货订单条形码明细标签 Excel")
+    @PreAuthorize("@ss.hasPermission('distribution:order-detail-info:export-barcode')")
+    @OperateLog(type = EXPORT)
+    public void exportOrderDetailBacodeInfoLableExcel(@Valid OrderDetailInfoExportReqVO exportReqVO,
+                                                      HttpServletResponse response) throws IOException {
+        List<OrderDetailInfoBarcodeLableExcelVO> list = orderDetailInfoService.exportOrderDetailInfoBarCodeLableExcel(exportReqVO);
+        ExcelUtils.write(response, "配货订单条形码.xls", "条形码", OrderDetailInfoBarcodeLableExcelVO.class, list, false);
     }
 
     @GetMapping("/export-facing-excel")
@@ -166,6 +178,9 @@ public class OrderDetailInfoController {
                 ))
                 .registerWriteHandler(new CustomMergeStrategy(
                         list.stream().map(OrderDetailInfoFacingObjectExcelVO::getObjectName3).collect(Collectors.toList()), 4
+                ))
+                .registerWriteHandler(new CustomMergeStrategy(
+                        list.stream().map(OrderDetailInfoFacingObjectExcelVO::getObjectName4).collect(Collectors.toList()), 6
                 ))
                 .doWrite(list);
         // 设置 header 和 contentType。写在最后的原因是，避免报错时，响应 contentType 已经被修改了

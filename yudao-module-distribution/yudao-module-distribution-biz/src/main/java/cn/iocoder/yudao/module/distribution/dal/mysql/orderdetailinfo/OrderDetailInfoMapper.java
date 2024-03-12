@@ -86,7 +86,7 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
                 .in(!ids.isEmpty(), ComprehensiveOrderInfoDO::getId, ids)
                 .orderByAsc(DownstreamInfoDO::getDeliveryMethod)
                 .orderByAsc(DownstreamInfoDO::getDownstreamAlias)
-                .orderByAsc(OrderDetailInfoDO::getOrderCode)
+                // .orderByAsc(OrderDetailInfoDO::getOrderCode)
                 .orderByAsc(DownstreamInfoDO::getDeliverySort)
                 .orderByAsc(UpstreamInfoDO::getUpstreamAlias)
                 .orderByAsc(UpstreamInfoDO::getPickupSort)
@@ -123,7 +123,7 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
                 .eqIfPresent(OrderDetailInfoDO::getCreateSort, reqVO.getCreateSort())
                 .orderByAsc(DownstreamInfoDO::getDeliveryMethod)
                 .orderByAsc(DownstreamInfoDO::getDownstreamAlias)
-                .orderByAsc(OrderDetailInfoDO::getOrderCode)
+                // .orderByAsc(OrderDetailInfoDO::getOrderCode)
                 .orderByAsc(DownstreamInfoDO::getDeliverySort)
                 .orderByAsc(UpstreamInfoDO::getUpstreamAlias)
                 .orderByAsc(UpstreamInfoDO::getPickupSort)
@@ -210,6 +210,29 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
                 .groupBy(OrderDetailInfoDO::getOrderDate)
                 .orderByAsc(OrderDetailInfoDO::getOrderDate)
                 .orderByAsc(DownstreamInfoDO::getDownstreamAlias)
+        );
+    }
+
+    default PageResult<OrderDetailInfoUpstreamRespVO> selectUpstreamOrderPage(OrderDetailInfoUpstreamReqVO reqVO) {
+        return selectJoinPage(reqVO, OrderDetailInfoUpstreamRespVO.class, new MPJLambdaWrapperX<OrderDetailInfoDO>()
+                .selectX(OrderDetailInfoDO::getOrderDate)
+                .selectX(UpstreamInfoDO::getUpstreamAlias, UpstreamInfoDO::getUpstreamName)
+                .selectMaxX(UpstreamInfoDO::getPickupMethod)
+                .selectMaxX(UpstreamInfoDO::getUpstreamAddress)
+                .selectCount(OrderDetailInfoDO::getId, OrderDetailInfoUpstreamRespVO::getTotalOrderNumber)
+                .selectSumX(OrderDetailInfoDO::getOrderSalesAmount, OrderDetailInfoUpstreamRespVO::getTotalOrderSalesAmount)
+                .selectSumX(OrderDetailInfoDO::getOrderCostAmount, OrderDetailInfoUpstreamRespVO::getTotalOrderCostAmount)
+                .selectSumX(OrderDetailInfoDO::getOrderPlanProfitAmount, OrderDetailInfoUpstreamRespVO::getTotalOrderPlanProfitAmount)
+                .leftJoinX(UpstreamInfoDO.class, UpstreamInfoDO::getUpstreamName, OrderDetailInfoDO::getUpstreamName)
+                .betweenIfPresent(OrderDetailInfoDO::getOrderDate, reqVO.getOrderDate())
+                .eqIfPresent(UpstreamInfoDO::getUpstreamName, reqVO.getUpstreamName())
+                .eqIfPresent(UpstreamInfoDO::getUpstreamAlias, reqVO.getUpstreamAlias())
+                .eqIfPresent(UpstreamInfoDO::getPickupMethod, reqVO.getPickupMethod())
+                .groupBy(OrderDetailInfoDO::getUpstreamName)
+                .groupBy(UpstreamInfoDO::getUpstreamAlias)
+                .groupBy(OrderDetailInfoDO::getOrderDate)
+                .orderByAsc(OrderDetailInfoDO::getOrderDate)
+                .orderByAsc(UpstreamInfoDO::getUpstreamAlias)
         );
     }
 
