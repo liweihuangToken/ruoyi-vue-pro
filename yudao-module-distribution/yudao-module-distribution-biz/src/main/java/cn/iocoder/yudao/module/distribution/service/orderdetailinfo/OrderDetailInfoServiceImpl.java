@@ -241,7 +241,18 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
         // 画订单图片进标签
         InputStream inputStream = new URL(orderDetailInfoFacingObjectRespVO.getOrderGoodsPictureUrl()).openConnection().getInputStream();
         BufferedImage image2 = ImageIO.read(inputStream);
-        g2.drawImage(image2, 263, 87, 199, 141, null);
+        double image2Width = image2.getWidth();
+        double image2Height = image2.getHeight();
+        // 计算宽高比
+        double ratio = image2Width / image2Height;
+        // 定义图片高度和图片初始开始像素
+        double imageHeight = 141;
+        double image2Start = 263;
+        // 计算图片宽度
+        double imageWidth = imageHeight * ratio;
+        // 计算图片开始像素
+        image2Start = (image2Start + ((199 - imageWidth) / 2));
+        g2.drawImage(image2, (int) image2Start, 87, (int) imageWidth, (int)imageHeight, null);
 
         // 画标签一维码
         InputStream oneCodeInputStream = new URL(orderCodeUrl).openConnection().getInputStream();
@@ -550,18 +561,18 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
             int orderTotalCount = orderDetailInfoDOList.size();
             int putStorageCount = 0, noPutStorageCount = 0, untreatedCount = 0;
             BigDecimal putStorageOrderTotalAmont = BigDecimal.ZERO;
-            for (OrderDetailInfoDO orderDetailInfoDO: orderDetailInfoDOList) {
+            for (OrderDetailInfoDO orderDetailInfoDO : orderDetailInfoDOList) {
                 Integer orderStatus = Integer.valueOf(orderDetailInfoDO.getOrderStatus());
-                if(OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode() != orderStatus
-                        && OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode() != orderStatus){
-                    putStorageCount ++;
+                if (OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode() != orderStatus
+                        && OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode() != orderStatus) {
+                    putStorageCount++;
                     putStorageOrderTotalAmont = putStorageOrderTotalAmont.add(orderDetailInfoDO.getOrderCostAmount());
                 }
-                if(OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode() == orderStatus){
-                    noPutStorageCount ++;
+                if (OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode() == orderStatus) {
+                    noPutStorageCount++;
                 }
-                if(OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode() == orderStatus){
-                    untreatedCount ++;
+                if (OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode() == orderStatus) {
+                    untreatedCount++;
                 }
             }
             OrderDetailStatisticsInfoVO orderDetailStatisticsInfoVO = new OrderDetailStatisticsInfoVO();
