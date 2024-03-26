@@ -29,6 +29,7 @@ import cn.iocoder.yudao.module.distribution.enums.DeliveryMethodEnum;
 import cn.iocoder.yudao.module.distribution.enums.OrderStatusEnum;
 import cn.iocoder.yudao.module.distribution.service.orderdetailinfo.OrderDetailInfoService;
 import cn.iocoder.yudao.module.distribution.utils.BarcodeUtil;
+import cn.iocoder.yudao.module.distribution.utils.SucodeUtil;
 import cn.iocoder.yudao.module.infra.service.file.FileService;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.springframework.beans.BeanUtils;
@@ -43,6 +44,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -205,6 +207,7 @@ public class ComprehensiveOrderInfoServiceImpl implements ComprehensiveOrderInfo
         List<OrderStatusTrackInfoDO> orderStatusTrackInfoDOList = new ArrayList<>();
         // 14位时间码
         String dateStr = LocalDateTimeUtil.format(LocalDateTime.now(), DatePattern.PURE_DATE_FORMATTER);
+        dateStr = dateStr.substring(2, dateStr.length());
         int cnt = 1;
         // 页码排序统计
         for (OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO : orderDetailInfoFacingObjectRespVOList) {
@@ -221,7 +224,14 @@ public class ComprehensiveOrderInfoServiceImpl implements ComprehensiveOrderInfo
             String sortNumber = String.format("%04d", cnt);
             cnt++;
             // 合成订单编码
-            String orderCode = sb.append(deliveryCode).append(pickupCode).append(dateStr).append(sortNumber).toString();
+            String orderCode = sb
+                    .append(deliveryCode)
+                    .append(pickupCode)
+                    .append(dateStr)
+                    .append(sortNumber)
+                    .append(SucodeUtil.getEngPrice(orderDetailInfoFacingObjectRespVO.getOrderSalesAmount().setScale(0, RoundingMode.DOWN).toString()))
+                    .append("@").append(orderDetailInfoFacingObjectRespVO.getUpstreamAlias())
+                    .toString();
 
             // 生成订单编码一维码图片并上传文件管理
             byte[] bytes = BarcodeUtil.generateBarCode128(orderCode, null, 8.00d, 4.00d, true, null);

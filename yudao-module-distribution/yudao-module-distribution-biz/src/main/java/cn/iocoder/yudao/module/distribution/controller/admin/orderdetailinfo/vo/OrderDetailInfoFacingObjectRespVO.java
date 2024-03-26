@@ -37,6 +37,9 @@ public class OrderDetailInfoFacingObjectRespVO extends OrderDetailInfoBaseVO {
     @Schema(description = "综合信息")
     private String totalInfo;
 
+    @Schema(description = "英文价格")
+    private String engPrice;
+
     @Schema(description = "状态跟踪信息")
     private List<OrderStatusTrackInfoDO> orderStatusTrackInfoDOList;
 

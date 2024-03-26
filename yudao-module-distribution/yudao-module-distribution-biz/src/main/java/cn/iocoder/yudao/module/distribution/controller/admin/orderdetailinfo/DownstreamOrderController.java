@@ -52,4 +52,19 @@ public class DownstreamOrderController {
         return success(pageResult);
     }
 
+    ///////// 移动端 //////////
+    @GetMapping("/selectTodayCustomerList")
+    @Operation(summary = "获取最近一个交易日客户交易综合信息")
+    public CommonResult<List<OrderDetailInfoDownstreamRespVO>> selectTodayCustomerList(@Valid OrderDetailInfoDownstreamReqVO pageVO) {
+        List<OrderDetailInfoDownstreamRespVO> todayCustomerList = orderDetailInfoService.selectTodayCustomerList(pageVO);
+        return success(todayCustomerList);
+    }
+
+    @GetMapping("/selectTodayCustomerOrderList")
+    @Operation(summary = "获取最近一个交易日客户交易明细信息")
+    public CommonResult<List<OrderDetailInfoDownstreamRespVO>> selectTodayCustomerOrderList(@Valid OrderDetailInfoDownstreamReqVO pageVO) {
+        List<OrderDetailInfoDownstreamRespVO> todayCustomerOrderList = orderDetailInfoService.selectTodayCustomerOrderList(pageVO);
+        return success(todayCustomerOrderList);
+    }
+
 }

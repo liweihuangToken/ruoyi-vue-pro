@@ -9,6 +9,7 @@ import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
 import cn.iocoder.yudao.module.distribution.controller.admin.orderdetailinfo.vo.*;
 import cn.iocoder.yudao.module.distribution.convert.orderdetailinfo.OrderDetailInfoConvert;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.orderdetailinfo.OrderDetailInfoDO;
+import cn.iocoder.yudao.module.distribution.enums.OrderStatusEnum;
 import cn.iocoder.yudao.module.distribution.service.orderdetailinfo.OrderDetailInfoService;
 import com.alibaba.excel.EasyExcel;
 import io.swagger.v3.oas.annotations.Operation;
@@ -201,6 +202,30 @@ public class OrderDetailInfoController {
     @PutMapping("/updateOrderStatus")
     @Operation(summary = "更新配货订单状态")
     public CommonResult<Boolean> updateOrderStatus(@Valid @RequestBody OrderDetailInfoUpdateReqVO updateReqVO) throws IOException {
+        orderDetailInfoService.updateOrderStatus(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/updateOrderStatusToPutStorage")
+    @Operation(summary = "更新配货订单状态至入库")
+    public CommonResult<Boolean> updateOrderStatusToPutStorage(@Valid @RequestBody OrderDetailInfoUpdateReqVO updateReqVO) throws IOException {
+        updateReqVO.setOrderStatus(new Byte(String.valueOf(OrderStatusEnum.ORDER_STATUS_WAREHOUSING.getCode())));
+        orderDetailInfoService.updateOrderStatus(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/updateOrderStatusToNotStock")
+    @Operation(summary = "更新配货订单状态至未入库")
+    public CommonResult<Boolean> updateOrderStatusToNotStock(@Valid @RequestBody OrderDetailInfoUpdateReqVO updateReqVO) throws IOException {
+        updateReqVO.setOrderStatus(new Byte(String.valueOf(OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode())));
+        orderDetailInfoService.updateOrderStatus(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/updateOrderStatusToRegister")
+    @Operation(summary = "更新配货订单状态至登记")
+    public CommonResult<Boolean> updateOrderStatusToRegister(@Valid @RequestBody OrderDetailInfoUpdateReqVO updateReqVO) throws IOException {
+        updateReqVO.setOrderStatus(new Byte(String.valueOf(OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode())));
         orderDetailInfoService.updateOrderStatus(updateReqVO);
         return success(true);
     }

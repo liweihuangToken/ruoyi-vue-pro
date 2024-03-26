@@ -54,44 +54,63 @@ public class CustomMergeStrategy extends AbstractMergeStrategy {
     private void mergeGroupColumn(Sheet sheet) {
         // 合并条目的开始条目数
         int rowCount = rowIndex;
+        // 设置每列当前占用的个数
+        int occupationNumber = 0;
+        int startRowCount = rowCount;
+        int endRowCount;
         // 循环设置合并的条目数
         for (Integer count : exportFieldGroupCountList) {
-            // ①如果只有单行则不需要进行合并操作
-            if (count == 1) {
-                rowCount += count;
-                continue;
-            }
-            // ②如果有需要合并单元格（count > 1）
-            int[] ints = StrUtil.splitToInt(NumberUtil.decimalFormat(",#", rowCount + 1), ",");
-            // int intTotol = 9;
-            boolean division9Flag = (rowCount + 1) % 9 == 0;
-//            for (int i = 0; i < ints.length; i++) {
-//                intTotol = intTotol - ints[i];
-//            }
-            int startRowCount = rowCount;
-            int endRowCount = rowCount + (division9Flag ? 9 - ((rowCount + 1) % 9) : 9);
-            while (endRowCount <= rowCount + count - 1) {
-                if (endRowCount - startRowCount == 0) {
-                    startRowCount = endRowCount + 1;
-                    endRowCount = endRowCount + 9;
-                    continue;
+            // 把当前页的占用补满9个，有两种情况①需要合并的数目小于等于补充的个数 ②需要合并的数目大于补充的个数
+            //if (0 != occupationNumber) {
+            int temp = 9 - occupationNumber;
+            // ①需要合并的数目小于等于补充的个数
+            if (count <= temp) {
+                endRowCount = startRowCount + count - 1;
+                // System.out.println("一：" + startRowCount + "-" + endRowCount + "-" + targetColumnIndex + "-" + targetColumnIndex);
+                if(startRowCount != endRowCount) {
+                    CellRangeAddress cellRangeAddress = new CellRangeAddress(startRowCount, endRowCount, targetColumnIndex, targetColumnIndex);
+                    sheet.addMergedRegionUnsafe(cellRangeAddress);
                 }
-                System.out.println("一：" + startRowCount + "-" + endRowCount + "-" + targetColumnIndex + "-" + targetColumnIndex);
-                CellRangeAddress cellRangeAddress = new CellRangeAddress(startRowCount, endRowCount, targetColumnIndex, targetColumnIndex);
-                sheet.addMergedRegionUnsafe(cellRangeAddress);
+                // 补满后重置占位个数
+                occupationNumber = (occupationNumber + count) % 9;
+                // 重置开始条目数
                 startRowCount = endRowCount + 1;
-                endRowCount = endRowCount + 9;
-            }
-            if ((rowCount + count) == startRowCount
-                    || (rowCount + count - startRowCount) == 1) {
-                rowCount += count;
-                continue;
             } else {
-                System.out.println("二：" + startRowCount + "-" + (rowCount + count - 1) + "-" + targetColumnIndex + "-" + targetColumnIndex);
-                CellRangeAddress cellRangeAddress = new CellRangeAddress(startRowCount, rowCount + count - 1, targetColumnIndex, targetColumnIndex);
-                sheet.addMergedRegionUnsafe(cellRangeAddress);
+                // ②需要合并的数目大于补充的个数
+                endRowCount = startRowCount + temp - 1;
+                // System.out.println("二：" + startRowCount + "-" + endRowCount + "-" + targetColumnIndex + "-" + targetColumnIndex);
+                if(startRowCount != endRowCount) {
+                    CellRangeAddress cellRangeAddress = new CellRangeAddress(startRowCount, endRowCount, targetColumnIndex, targetColumnIndex);
+                    sheet.addMergedRegionUnsafe(cellRangeAddress);
+                }
+                // 补满后重置占位个数
+                occupationNumber = 0;
+                // 重置开始条目数
+                startRowCount = endRowCount + 1;
+
+                // 开始处理其他页的合并
+                count = count - temp;
+                int groupNumber = count / 9;
+                int remainder = count % 9;
+                for (int i = 0; i < groupNumber; i++) {
+                    endRowCount = startRowCount + 8;
+                    // System.out.println("三：" + startRowCount + "-" + endRowCount + "-" + targetColumnIndex + "-" + targetColumnIndex);
+                    CellRangeAddress cellRangeAddress2 = new CellRangeAddress(startRowCount, endRowCount, targetColumnIndex, targetColumnIndex);
+                    sheet.addMergedRegionUnsafe(cellRangeAddress2);
+                    startRowCount = endRowCount + 1;
+                }
+                if (0 != remainder) {
+                    endRowCount = startRowCount + remainder - 1;
+                    // System.out.println("四：" + startRowCount + "-" + endRowCount + "-" + targetColumnIndex + "-" + targetColumnIndex);
+                    if(startRowCount != endRowCount) {
+                        CellRangeAddress cellRangeAddress2 = new CellRangeAddress(startRowCount, endRowCount, targetColumnIndex, targetColumnIndex);
+                        sheet.addMergedRegionUnsafe(cellRangeAddress2);
+                    }
+                    occupationNumber = remainder;
+                    startRowCount = endRowCount + 1;
+                }
             }
-            rowCount += count;
+            // }
         }
     }
 

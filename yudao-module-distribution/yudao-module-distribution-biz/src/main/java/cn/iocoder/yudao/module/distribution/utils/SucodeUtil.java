@@ -26,6 +26,23 @@ public class SucodeUtil {
                 .replaceAll("9","〩");
     }
 
+    public static String getEngPrice(String priceStr){
+        if(StrUtil.isEmpty(priceStr)){
+            return priceStr;
+        }
+        return priceStr
+                .replaceAll("0","Z")
+                .replaceAll("1","A")
+                .replaceAll("2","B")
+                .replaceAll("3","C")
+                .replaceAll("4","D")
+                .replaceAll("5","E")
+                .replaceAll("6","F")
+                .replaceAll("7","G")
+                .replaceAll("8","H")
+                .replaceAll("9","J");
+    }
+
     public static String getRandomSucode(){
         Integer[] integers = NumberUtil.generateBySet(0, 9, 1);
         return getSucode(integers[0].toString());

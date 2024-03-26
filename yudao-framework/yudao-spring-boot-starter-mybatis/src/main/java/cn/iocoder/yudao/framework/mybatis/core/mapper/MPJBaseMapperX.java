@@ -30,4 +30,8 @@ public interface MPJBaseMapperX<T> extends MPJBaseMapper<T> {
         return new PageResult<>(mpPage.getRecords(), mpPage.getTotal());
     }
 
+    default <D> List selectJoinListX(Class<D> clazz,  @Param("ew") MPJBaseJoin<T> queryWrapper) {
+        return selectJoinList(clazz, queryWrapper);
+    }
+
 }

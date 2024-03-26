@@ -4,17 +4,20 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.iocoder.yudao.module.distribution.controller.admin.comprehensiveorderinfo.vo.ComprehensiveOrderInfoPageReqVO;
 import cn.iocoder.yudao.module.distribution.controller.admin.orderstatustrackinfo.vo.OrderStatusTrackInfoExportReqVO;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.comprehensiveorderinfo.ComprehensiveOrderInfoDO;
 import cn.iocoder.yudao.module.distribution.dal.dataobject.orderstatustrackinfo.OrderStatusTrackInfoDO;
 import cn.iocoder.yudao.module.distribution.dal.mysql.comprehensiveorderinfo.ComprehensiveOrderInfoMapper;
 import cn.iocoder.yudao.module.distribution.dal.mysql.orderstatustrackinfo.OrderStatusTrackInfoMapper;
+import cn.iocoder.yudao.module.distribution.enums.DeleteEnum;
 import cn.iocoder.yudao.module.distribution.enums.DeliveryMethodEnum;
 import cn.iocoder.yudao.module.distribution.enums.OrderStatusEnum;
 import cn.iocoder.yudao.module.distribution.utils.BarcodeUtil;
 import cn.iocoder.yudao.module.distribution.utils.FontUtil;
 import cn.iocoder.yudao.module.distribution.utils.SucodeUtil;
 import cn.iocoder.yudao.module.infra.service.file.FileService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
@@ -406,6 +410,237 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
     }
 
     @Override
+    public List<OrderDetailInfoUpstreamRespVO> selectTodaySupplierList(OrderDetailInfoUpstreamReqVO reqVO) {
+        // 如果没有传所属日期则取最近订单的所属日期
+        if (null == reqVO.getOrderDate() || 0 == reqVO.getOrderDate().length) {
+            ComprehensiveOrderInfoPageReqVO comprehensiveOrderInfoPageReqVO = new ComprehensiveOrderInfoPageReqVO();
+            comprehensiveOrderInfoPageReqVO.setPageNo(1);
+            comprehensiveOrderInfoPageReqVO.setPageSize(1);
+            List<ComprehensiveOrderInfoDO> comprehensiveOrderInfoDOList = comprehensiveOrderInfoMapper.selectPage(comprehensiveOrderInfoPageReqVO).getList();
+            if(null != comprehensiveOrderInfoDOList && !comprehensiveOrderInfoDOList.isEmpty()){
+                ComprehensiveOrderInfoDO comprehensiveOrderInfoDO = comprehensiveOrderInfoDOList.get(0);
+                if (null != comprehensiveOrderInfoDO) {
+                    LocalDate[] orderDateArr = new LocalDate[2];
+                    orderDateArr[0] = orderDateArr[1] = comprehensiveOrderInfoDO.getOrderDate();
+                    reqVO.setOrderDate(orderDateArr);
+                }
+            }
+        }
+        // 获取最近一个交易日的全部供货商及其交易综合信息
+        List<OrderDetailInfoUpstreamRespVO> todaySupplierList = orderDetailInfoMapper.selectSupplierList(reqVO);
+        if (null != todaySupplierList && !todaySupplierList.isEmpty()) {
+            OrderDetailInfoExportReqVO orderDetailInfoExportReqVO = new OrderDetailInfoExportReqVO();
+            for (OrderDetailInfoUpstreamRespVO orderDetailInfoUpstreamRespVO : todaySupplierList) {
+                orderDetailInfoExportReqVO.setOrderDate(reqVO.getOrderDate());
+                orderDetailInfoExportReqVO.setUpstreamName(orderDetailInfoUpstreamRespVO.getUpstreamName());
+                orderDetailInfoExportReqVO.setSize(reqVO.getSize());
+                orderDetailInfoExportReqVO.setOrderStatus(reqVO.getOrderStatus());
+                List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = orderDetailInfoMapper.selectListFacingUpstream(orderDetailInfoExportReqVO);
+                int registrationCount = 0, warehousingCount = 0, notWarehousingCount = 0;
+                for (OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO:orderDetailInfoFacingObjectRespVOList) {
+                    if(String.valueOf(OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode()).equals(String.valueOf(orderDetailInfoFacingObjectRespVO.getOrderStatus()))) {
+                        registrationCount = registrationCount + 1;
+                    }
+                    if(String.valueOf(OrderStatusEnum.ORDER_STATUS_WAREHOUSING.getCode()).equals(String.valueOf(orderDetailInfoFacingObjectRespVO.getOrderStatus()))) {
+                        warehousingCount = warehousingCount + 1;
+                    }
+                    if(String.valueOf(OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode()).equals(String.valueOf(orderDetailInfoFacingObjectRespVO.getOrderStatus()))) {
+                        notWarehousingCount = notWarehousingCount + 1;
+                    }
+                }
+                orderDetailInfoUpstreamRespVO.setOrderDetailInfoFacingObjectRespVOList(orderDetailInfoFacingObjectRespVOList);
+                orderDetailInfoUpstreamRespVO.setRegistrationCount(registrationCount);
+                orderDetailInfoUpstreamRespVO.setWarehousingCount(warehousingCount);
+                orderDetailInfoUpstreamRespVO.setNotWarehousingCount(notWarehousingCount);
+            }
+        }
+        return todaySupplierList;
+    }
+
+    @Override
+    public List<OrderDetailInfoDownstreamRespVO> selectTodayCustomerList(OrderDetailInfoDownstreamReqVO reqVO) {
+        // 如果没有传所属日期则取最近订单的所属日期
+        if (null == reqVO.getOrderDate() || 0 == reqVO.getOrderDate().length) {
+            ComprehensiveOrderInfoPageReqVO comprehensiveOrderInfoPageReqVO = new ComprehensiveOrderInfoPageReqVO();
+            comprehensiveOrderInfoPageReqVO.setPageNo(1);
+            comprehensiveOrderInfoPageReqVO.setPageSize(1);
+            List<ComprehensiveOrderInfoDO> comprehensiveOrderInfoDOList = comprehensiveOrderInfoMapper.selectPage(comprehensiveOrderInfoPageReqVO).getList();
+            if(null != comprehensiveOrderInfoDOList && !comprehensiveOrderInfoDOList.isEmpty()){
+                ComprehensiveOrderInfoDO comprehensiveOrderInfoDO = comprehensiveOrderInfoDOList.get(0);
+                if (null != comprehensiveOrderInfoDO) {
+                    LocalDate[] orderDateArr = new LocalDate[2];
+                    orderDateArr[0] = orderDateArr[1] = comprehensiveOrderInfoDO.getOrderDate();
+                    reqVO.setOrderDate(orderDateArr);
+                }
+            }
+        }
+        // 获取最近一个交易日的全部供货商及其交易综合信息
+        List<OrderDetailInfoDownstreamRespVO> todayCustomerList = orderDetailInfoMapper.selectCustomerList(reqVO);
+        if (null != todayCustomerList && !todayCustomerList.isEmpty()) {
+            OrderDetailInfoExportReqVO orderDetailInfoExportReqVO = new OrderDetailInfoExportReqVO();
+            for (OrderDetailInfoDownstreamRespVO orderDetailInfoDownstreamRespVO : todayCustomerList) {
+                orderDetailInfoExportReqVO.setOrderDate(reqVO.getOrderDate());
+                orderDetailInfoExportReqVO.setDownstreamName(orderDetailInfoDownstreamRespVO.getDownstreamName());
+                orderDetailInfoExportReqVO.setSize(reqVO.getSize());
+                orderDetailInfoExportReqVO.setOrderStatus(reqVO.getOrderStatus());
+                List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = orderDetailInfoMapper.selectListFacingDownstream(orderDetailInfoExportReqVO);
+                int registrationCount = 0, warehousingCount = 0, notWarehousingCount = 0;
+                for (OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO:orderDetailInfoFacingObjectRespVOList) {
+                    if(String.valueOf(OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode()).equals(String.valueOf(orderDetailInfoFacingObjectRespVO.getOrderStatus()))) {
+                        registrationCount = registrationCount + 1;
+                    }
+                    if(String.valueOf(OrderStatusEnum.ORDER_STATUS_WAREHOUSING.getCode()).equals(String.valueOf(orderDetailInfoFacingObjectRespVO.getOrderStatus()))) {
+                        warehousingCount = warehousingCount + 1;
+                    }
+                    if(String.valueOf(OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode()).equals(String.valueOf(orderDetailInfoFacingObjectRespVO.getOrderStatus()))) {
+                        notWarehousingCount = notWarehousingCount + 1;
+                    }
+                }
+                orderDetailInfoDownstreamRespVO.setOrderDetailInfoFacingObjectRespVOList(orderDetailInfoFacingObjectRespVOList);
+                orderDetailInfoDownstreamRespVO.setRegistrationCount(registrationCount);
+                orderDetailInfoDownstreamRespVO.setWarehousingCount(warehousingCount);
+                orderDetailInfoDownstreamRespVO.setNotWarehousingCount(notWarehousingCount);
+            }
+        }
+        return todayCustomerList;
+    }
+
+    @Override
+    public List<OrderDetailInfoDownstreamRespVO> selectTodayCustomerOrderList(OrderDetailInfoDownstreamReqVO reqVO) {
+        // 如果没有传所属日期则取最近订单的所属日期
+        if (null == reqVO.getOrderDate() || 0 == reqVO.getOrderDate().length) {
+            ComprehensiveOrderInfoPageReqVO comprehensiveOrderInfoPageReqVO = new ComprehensiveOrderInfoPageReqVO();
+            comprehensiveOrderInfoPageReqVO.setPageNo(1);
+            comprehensiveOrderInfoPageReqVO.setPageSize(1);
+            List<ComprehensiveOrderInfoDO> comprehensiveOrderInfoDOList = comprehensiveOrderInfoMapper.selectPage(comprehensiveOrderInfoPageReqVO).getList();
+            if(null != comprehensiveOrderInfoDOList && !comprehensiveOrderInfoDOList.isEmpty()){
+                ComprehensiveOrderInfoDO comprehensiveOrderInfoDO = comprehensiveOrderInfoDOList.get(0);
+                if (null != comprehensiveOrderInfoDO) {
+                    LocalDate[] orderDateArr = new LocalDate[2];
+                    orderDateArr[0] = orderDateArr[1] = comprehensiveOrderInfoDO.getOrderDate();
+                    reqVO.setOrderDate(orderDateArr);
+                }
+            }
+        }
+        List<OrderDetailInfoDownstreamRespVO> orderDetailInfoDownstreamReqVOList = orderDetailInfoMapper.selectCustomerList(reqVO);
+        if (null != orderDetailInfoDownstreamReqVOList && !orderDetailInfoDownstreamReqVOList.isEmpty()) {
+            OrderDetailInfoExportReqVO orderDetailInfoExportReqVO = new OrderDetailInfoExportReqVO();
+            for (OrderDetailInfoDownstreamRespVO orderDetailInfoDownstreamRespVO : orderDetailInfoDownstreamReqVOList) {
+                orderDetailInfoExportReqVO.setOrderDate(reqVO.getOrderDate());
+                orderDetailInfoExportReqVO.setDownstreamName(orderDetailInfoDownstreamRespVO.getDownstreamName());
+                orderDetailInfoExportReqVO.setSize(reqVO.getSize());
+                orderDetailInfoExportReqVO.setOrderStatus(reqVO.getOrderStatus());
+                List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = orderDetailInfoMapper.selectListFacingDownstream(orderDetailInfoExportReqVO);
+                List<String> sizeList = new ArrayList<>();
+                for (OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO:orderDetailInfoFacingObjectRespVOList) {
+                    if(!sizeList.contains(orderDetailInfoFacingObjectRespVO.getSize())) {
+                        sizeList.add(orderDetailInfoFacingObjectRespVO.getSize());
+                    }
+                    orderDetailInfoFacingObjectRespVO.setEngPrice(
+                            SucodeUtil.getEngPrice(
+                                    orderDetailInfoFacingObjectRespVO.getOrderSalesAmount().setScale(0, RoundingMode.DOWN).toString()
+                            ));
+                }
+                orderDetailInfoDownstreamRespVO.setOrderDetailInfoFacingObjectRespVOList(orderDetailInfoFacingObjectRespVOList);
+                orderDetailInfoDownstreamRespVO.setSizeList(ListUtil.sortByPinyin(sizeList));
+            }
+        }
+        return orderDetailInfoDownstreamReqVOList;
+    }
+
+    @Override
+    public int updateOrdersStatusToNotReceived(OrderDetailInfoUpstreamReqVO reqVO) {
+        // 如果没有传所属日期则取最近订单的所属日期
+        if (null == reqVO.getOrderDate() || 0 == reqVO.getOrderDate().length) {
+            ComprehensiveOrderInfoPageReqVO comprehensiveOrderInfoPageReqVO = new ComprehensiveOrderInfoPageReqVO();
+            comprehensiveOrderInfoPageReqVO.setPageNo(1);
+            comprehensiveOrderInfoPageReqVO.setPageSize(1);
+            List<ComprehensiveOrderInfoDO> comprehensiveOrderInfoDOList = comprehensiveOrderInfoMapper.selectPage(comprehensiveOrderInfoPageReqVO).getList();
+            if(null != comprehensiveOrderInfoDOList && !comprehensiveOrderInfoDOList.isEmpty()){
+                ComprehensiveOrderInfoDO comprehensiveOrderInfoDO = comprehensiveOrderInfoDOList.get(0);
+                if (null != comprehensiveOrderInfoDO) {
+                    LocalDate[] orderDateArr = new LocalDate[2];
+                    orderDateArr[0] = orderDateArr[1] = comprehensiveOrderInfoDO.getOrderDate();
+                    reqVO.setOrderDate(orderDateArr);
+                }
+            }
+        }
+        // 查询该用户下稍微所有为登记状态的订单
+        List<OrderDetailInfoUpstreamRespVO> orderDetailInfoUpstreamReqVOList = orderDetailInfoMapper.selectSupplierList(reqVO);
+        int updateSum = 0;
+        if (null != orderDetailInfoUpstreamReqVOList && !orderDetailInfoUpstreamReqVOList.isEmpty()) {
+            OrderDetailInfoExportReqVO orderDetailInfoExportReqVO = new OrderDetailInfoExportReqVO();
+            for (OrderDetailInfoUpstreamRespVO orderDetailInfoUpstreamRespVO : orderDetailInfoUpstreamReqVOList) {
+                orderDetailInfoExportReqVO.setOrderDate(reqVO.getOrderDate());
+                orderDetailInfoExportReqVO.setUpstreamName(orderDetailInfoUpstreamRespVO.getUpstreamName());
+                orderDetailInfoExportReqVO.setSize(reqVO.getSize());
+                orderDetailInfoExportReqVO.setOrderStatus(new Byte(OrderStatusEnum.ORDER_STATUS_REGISTRATION.getCode().toString()));
+                List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = orderDetailInfoMapper.selectListFacingUpstream(orderDetailInfoExportReqVO);
+                // 开始更新订单状态并添加变更记录
+                for (OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO:orderDetailInfoFacingObjectRespVOList) {
+                    // 变更订单状态
+                    OrderDetailInfoDO orderDetailInfoDO = new OrderDetailInfoDO();
+                    orderDetailInfoDO.setId(orderDetailInfoFacingObjectRespVO.getId());
+                    orderDetailInfoDO.setOrderStatus(orderDetailInfoFacingObjectRespVO.getOrderStatus());
+                    orderDetailInfoDO.setOrderStatus(new Byte(OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode().toString()));
+                    int updatecount = orderDetailInfoMapper.updateById(orderDetailInfoDO);
+
+                    // 添加订单跟踪信息
+                    OrderStatusTrackInfoDO orderStatusTrackInfoDO = new OrderStatusTrackInfoDO();
+                    orderStatusTrackInfoDO.setOrderCode(orderDetailInfoFacingObjectRespVO.getOrderCode());
+                    orderStatusTrackInfoDO.setOrderAfterChangeStatus(new Byte(OrderStatusEnum.ORDER_STATUS_NOT_WAREHOUSING.getCode().toString()));
+                    orderStatusTrackInfoMapper.insert(orderStatusTrackInfoDO);
+                    updateSum = updateSum + updatecount;
+                }
+            }
+        }
+        return updateSum;
+    }
+
+    @Override
+    public List<OrderDetailInfoUpstreamRespVO> selectTodaySupplierOrderList(OrderDetailInfoUpstreamReqVO reqVO) {
+        // 如果没有传所属日期则取最近订单的所属日期
+        if (null == reqVO.getOrderDate() || 0 == reqVO.getOrderDate().length) {
+            ComprehensiveOrderInfoPageReqVO comprehensiveOrderInfoPageReqVO = new ComprehensiveOrderInfoPageReqVO();
+            comprehensiveOrderInfoPageReqVO.setPageNo(1);
+            comprehensiveOrderInfoPageReqVO.setPageSize(1);
+            List<ComprehensiveOrderInfoDO> comprehensiveOrderInfoDOList = comprehensiveOrderInfoMapper.selectPage(comprehensiveOrderInfoPageReqVO).getList();
+            if(null != comprehensiveOrderInfoDOList && !comprehensiveOrderInfoDOList.isEmpty()){
+                ComprehensiveOrderInfoDO comprehensiveOrderInfoDO = comprehensiveOrderInfoDOList.get(0);
+                if (null != comprehensiveOrderInfoDO) {
+                    LocalDate[] orderDateArr = new LocalDate[2];
+                    orderDateArr[0] = orderDateArr[1] = comprehensiveOrderInfoDO.getOrderDate();
+                    reqVO.setOrderDate(orderDateArr);
+                }
+            }
+        }
+        List<OrderDetailInfoUpstreamRespVO> orderDetailInfoUpstreamReqVOList = orderDetailInfoMapper.selectSupplierList(reqVO);
+        if (null != orderDetailInfoUpstreamReqVOList && !orderDetailInfoUpstreamReqVOList.isEmpty()) {
+            OrderDetailInfoExportReqVO orderDetailInfoExportReqVO = new OrderDetailInfoExportReqVO();
+            for (OrderDetailInfoUpstreamRespVO orderDetailInfoUpstreamRespVO : orderDetailInfoUpstreamReqVOList) {
+                orderDetailInfoExportReqVO.setOrderDate(reqVO.getOrderDate());
+                orderDetailInfoExportReqVO.setUpstreamName(orderDetailInfoUpstreamRespVO.getUpstreamName());
+                orderDetailInfoExportReqVO.setSize(reqVO.getSize());
+                orderDetailInfoExportReqVO.setOrderStatus(reqVO.getOrderStatus());
+                List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = orderDetailInfoMapper.selectListFacingUpstream(orderDetailInfoExportReqVO);
+                List<String> sizeList = new ArrayList<>();
+                for (OrderDetailInfoFacingObjectRespVO orderDetailInfoFacingObjectRespVO:orderDetailInfoFacingObjectRespVOList) {
+                    if(!sizeList.contains(orderDetailInfoFacingObjectRespVO.getSize())) {
+                        sizeList.add(orderDetailInfoFacingObjectRespVO.getSize());
+                    }
+                    orderDetailInfoFacingObjectRespVO.setEngPrice(
+                            SucodeUtil.getEngPrice(
+                                    orderDetailInfoFacingObjectRespVO.getOrderSalesAmount().setScale(0, RoundingMode.DOWN).toString()
+                            ));
+                }
+                orderDetailInfoUpstreamRespVO.setOrderDetailInfoFacingObjectRespVOList(orderDetailInfoFacingObjectRespVOList);
+                orderDetailInfoUpstreamRespVO.setSizeList(ListUtil.sortByPinyin(sizeList));
+            }
+        }
+        return orderDetailInfoUpstreamReqVOList;
+    }
+
+    @Override
     public List<OrderDetailInfoFacingObjectRespVO> exportOrderDetailInfoFacingObjectExcel(OrderDetailInfoFacingObjectExportReqVO orderDetailInfoFacingObjectExportReqVO) throws MalformedURLException {
         // 面向下游排序获取订单信息
         List<OrderDetailInfoFacingObjectExcelVO> orderDetailInfoFacingObjectExcelVOAllList = new ArrayList<>();
@@ -453,15 +688,17 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
             String pickupCode = DeliveryMethodEnum.valueOfType(Integer.valueOf(orderDetailInfoFacingObjectRespVO.getPickupMethod())).getCode();
             String code = isFacingDownstream ? deliveryCode : pickupCode;
             name = new StringBuffer(name)
-                    .append("\n(总计：")
+                    // .append("\n(总计：")
+                    .append("\n")
                     .append(isFacingDownstream ? downstreamOrderCountMap.get(name) : upstreamOrderCountMap.get(name))
-                    .append("，")
-                    .append(SucodeUtil.getSucode(NumberUtil.toStr(isFacingDownstream ?
-                            downstreamOrderTotolPriceMap.get(name) : upstreamOrderTotolPriceMap.get(name)
-                    )))
-                    .append("，")
-                    .append(code)
-                    .append(")").toString();
+//                    .append("，")
+//                    .append(SucodeUtil.getSucode(NumberUtil.toStr(isFacingDownstream ?
+//                            downstreamOrderTotolPriceMap.get(name) : upstreamOrderTotolPriceMap.get(name)
+//                    )))
+//                    .append("，")
+//                    .append(code)
+//                    .append(")")
+                    .toString();
             orderDetailInfoFacingObjectRespVO.setTotalInfo(name);
         }
         return orderDetailInfoFacingObjectRespVOList;
@@ -520,11 +757,23 @@ public class OrderDetailInfoServiceImpl implements OrderDetailInfoService {
     public PageResult<OrderDetailInfoDownstreamRespVO> selectDownstreamOrderPage(OrderDetailInfoDownstreamReqVO reqVO) {
         // 如果没有传所属日期则取最近订单的所属日期
         if (null == reqVO.getOrderDate() || 0 == reqVO.getOrderDate().length) {
-            List<OrderDetailInfoDownstreamRespVO> list = orderDetailInfoMapper.selectDownstreamOrderPage(reqVO).getList();
-            if (null != list && !list.isEmpty()) {
-                LocalDate[] orderDateArr = new LocalDate[2];
-                orderDateArr[0] = orderDateArr[1] = list.get(0).getOrderDate();
-                reqVO.setOrderDate(orderDateArr);
+//            List<OrderDetailInfoDownstreamRespVO> list = orderDetailInfoMapper.selectDownstreamOrderPage(reqVO).getList();
+//            if (null != list && !list.isEmpty()) {
+//                LocalDate[] orderDateArr = new LocalDate[2];
+//                orderDateArr[0] = orderDateArr[1] = list.get(0).getOrderDate();
+//                reqVO.setOrderDate(orderDateArr);
+//            }
+            ComprehensiveOrderInfoPageReqVO comprehensiveOrderInfoPageReqVO = new ComprehensiveOrderInfoPageReqVO();
+            comprehensiveOrderInfoPageReqVO.setPageNo(1);
+            comprehensiveOrderInfoPageReqVO.setPageSize(1);
+            List<ComprehensiveOrderInfoDO> comprehensiveOrderInfoDOList = comprehensiveOrderInfoMapper.selectPage(comprehensiveOrderInfoPageReqVO).getList();
+            if(null != comprehensiveOrderInfoDOList && !comprehensiveOrderInfoDOList.isEmpty()){
+                ComprehensiveOrderInfoDO comprehensiveOrderInfoDO = comprehensiveOrderInfoDOList.get(0);
+                if (null != comprehensiveOrderInfoDO) {
+                    LocalDate[] orderDateArr = new LocalDate[2];
+                    orderDateArr[0] = orderDateArr[1] = comprehensiveOrderInfoDO.getOrderDate();
+                    reqVO.setOrderDate(orderDateArr);
+                }
             }
         }
         PageResult<OrderDetailInfoDownstreamRespVO> orderDetailInfoDownstreamRespVOPageResult = orderDetailInfoMapper.selectDownstreamOrderPage(reqVO);

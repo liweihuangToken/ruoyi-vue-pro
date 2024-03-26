@@ -236,6 +236,52 @@ public interface OrderDetailInfoMapper extends BaseMapperX<OrderDetailInfoDO> {
         );
     }
 
+    default List<OrderDetailInfoUpstreamRespVO> selectSupplierList(OrderDetailInfoUpstreamReqVO reqVO) {
+        return selectJoinListX(OrderDetailInfoUpstreamRespVO.class, new MPJLambdaWrapperX<OrderDetailInfoDO>()
+                .selectX(OrderDetailInfoDO::getOrderDate)
+                .selectX(UpstreamInfoDO::getUpstreamAlias, UpstreamInfoDO::getUpstreamName)
+                .selectMaxX(UpstreamInfoDO::getPickupMethod)
+                .selectMaxX(UpstreamInfoDO::getUpstreamAddress)
+                .selectCount(OrderDetailInfoDO::getId, OrderDetailInfoUpstreamRespVO::getTotalOrderNumber)
+                .selectSumX(OrderDetailInfoDO::getOrderSalesAmount, OrderDetailInfoUpstreamRespVO::getTotalOrderSalesAmount)
+                .selectSumX(OrderDetailInfoDO::getOrderCostAmount, OrderDetailInfoUpstreamRespVO::getTotalOrderCostAmount)
+                .selectSumX(OrderDetailInfoDO::getOrderPlanProfitAmount, OrderDetailInfoUpstreamRespVO::getTotalOrderPlanProfitAmount)
+                .leftJoinX(UpstreamInfoDO.class, UpstreamInfoDO::getUpstreamName, OrderDetailInfoDO::getUpstreamName)
+                .betweenIfPresent(OrderDetailInfoDO::getOrderDate, reqVO.getOrderDate())
+                .eqIfPresent(UpstreamInfoDO::getUpstreamName, reqVO.getUpstreamName())
+                .eqIfPresent(UpstreamInfoDO::getUpstreamAlias, reqVO.getUpstreamAlias())
+                .eqIfPresent(UpstreamInfoDO::getPickupMethod, reqVO.getPickupMethod())
+                .groupBy(OrderDetailInfoDO::getUpstreamName)
+                .groupBy(UpstreamInfoDO::getUpstreamAlias)
+                .groupBy(OrderDetailInfoDO::getOrderDate)
+                .orderByAsc(OrderDetailInfoDO::getOrderDate)
+                .orderByAsc(UpstreamInfoDO::getUpstreamAlias)
+        );
+    }
+
+    default List<OrderDetailInfoDownstreamRespVO> selectCustomerList(OrderDetailInfoDownstreamReqVO reqVO) {
+        return selectJoinListX(OrderDetailInfoDownstreamRespVO.class, new MPJLambdaWrapperX<OrderDetailInfoDO>()
+                .selectX(OrderDetailInfoDO::getOrderDate)
+                .selectX(DownstreamInfoDO::getDownstreamAlias, DownstreamInfoDO::getDownstreamName)
+                .selectMaxX(DownstreamInfoDO::getDeliveryMethod)
+                .selectMaxX(DownstreamInfoDO::getDownstreamAddress)
+                .selectCount(OrderDetailInfoDO::getId, OrderDetailInfoDownstreamRespVO::getTotalOrderNumber)
+                .selectSumX(OrderDetailInfoDO::getOrderSalesAmount, OrderDetailInfoDownstreamRespVO::getTotalOrderSalesAmount)
+                .selectSumX(OrderDetailInfoDO::getOrderCostAmount, OrderDetailInfoDownstreamRespVO::getTotalOrderCostAmount)
+                .selectSumX(OrderDetailInfoDO::getOrderPlanProfitAmount, OrderDetailInfoDownstreamRespVO::getTotalOrderPlanProfitAmount)
+                .leftJoinX(DownstreamInfoDO.class, DownstreamInfoDO::getDownstreamName, OrderDetailInfoDO::getDownstreamName)
+                .betweenIfPresent(OrderDetailInfoDO::getOrderDate, reqVO.getOrderDate())
+                .eqIfPresent(DownstreamInfoDO::getDownstreamName, reqVO.getDownstreamName())
+                .eqIfPresent(DownstreamInfoDO::getDownstreamAlias, reqVO.getDownstreamAlias())
+                .eqIfPresent(DownstreamInfoDO::getDeliveryMethod, reqVO.getDeliveryMethod())
+                .groupBy(OrderDetailInfoDO::getDownstreamName)
+                .groupBy(DownstreamInfoDO::getDownstreamAlias)
+                .groupBy(OrderDetailInfoDO::getOrderDate)
+                .orderByAsc(OrderDetailInfoDO::getOrderDate)
+                .orderByAsc(DownstreamInfoDO::getDownstreamAlias)
+        );
+    }
+
     default OrderDetailInfoFacingObjectRespVO getOrderDetailInfoByCode(String code) {
         List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList = selectJoinList(OrderDetailInfoFacingObjectRespVO.class, new MPJLambdaWrapperX<OrderDetailInfoDO>()
                 .selectAll(OrderDetailInfoDO.class)

@@ -89,6 +89,21 @@ public interface OrderDetailInfoService {
      */
     List<OrderDetailInfoLableExcelVO> exportOrderDetailInfoLableExcel(OrderDetailInfoExportReqVO orderDetailInfoExportReqVO) throws MalformedURLException;
 
+
+    /**
+     * 获取最近一个交易日供货商交易综合信息
+     * @param reqVO
+     * @return
+     */
+    List<OrderDetailInfoUpstreamRespVO> selectTodaySupplierList(OrderDetailInfoUpstreamReqVO reqVO);
+
+    /**
+     * 获取最近一个交易日供货商交易明细信息
+     * @param reqVO
+     * @return
+     */
+    List<OrderDetailInfoUpstreamRespVO> selectTodaySupplierOrderList(OrderDetailInfoUpstreamReqVO reqVO);
+
     /**
      * 面向上下游获取排序后订单导出信息
      * @param orderDetailInfoFacingObjectExportReqVO
@@ -149,4 +164,10 @@ public interface OrderDetailInfoService {
      * @return
      */
     PageResult<OrderDetailInfoUpstreamRespVO> selectUpstreamOrderPage(OrderDetailInfoUpstreamReqVO reqVO);
+
+    List<OrderDetailInfoDownstreamRespVO> selectTodayCustomerList(OrderDetailInfoDownstreamReqVO pageVO);
+
+    List<OrderDetailInfoDownstreamRespVO> selectTodayCustomerOrderList(OrderDetailInfoDownstreamReqVO pageVO);
+
+    int updateOrdersStatusToNotReceived(OrderDetailInfoUpstreamReqVO reqVO);
 }

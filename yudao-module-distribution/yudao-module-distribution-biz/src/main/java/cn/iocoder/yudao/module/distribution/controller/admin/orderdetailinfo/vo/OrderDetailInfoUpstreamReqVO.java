@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -43,5 +44,11 @@ public class OrderDetailInfoUpstreamReqVO extends PageParam {
 
     @Schema(description = "订单计划利润总金额")
     private BigDecimal totalOrderPlanProfitAmount;
+
+    @Schema(description = "尺码")
+    private String size;
+
+    @Schema(description = "订单状态")
+    private Byte orderStatus;
 
 }

@@ -43,4 +43,16 @@ public class OrderDetailInfoUpstreamRespVO {
     @Schema(description = "订单详细信息")
     private List<OrderDetailInfoFacingObjectRespVO> orderDetailInfoFacingObjectRespVOList;
 
+    @Schema(description = "尺码组")
+    private List<String> sizeList;
+
+    @Schema(description = "登记数量")
+    private Integer registrationCount;
+
+    @Schema(description = "入库数量")
+    private Integer warehousingCount;
+
+    @Schema(description = "未到货数量")
+    private Integer notWarehousingCount;
+
 }
