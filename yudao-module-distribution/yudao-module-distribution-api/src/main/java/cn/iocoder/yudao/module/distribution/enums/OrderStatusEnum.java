@@ -27,7 +27,7 @@ public enum OrderStatusEnum implements IntArrayValuable{
     ORDER_STATUS_WAREHOUSING(1, "已入库"),
 
     /**
-     * 未入库
+     * 未到货
      */
     ORDER_STATUS_NOT_WAREHOUSING(2, "无货"),
     ;

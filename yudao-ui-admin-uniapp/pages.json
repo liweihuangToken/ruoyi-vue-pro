@@ -70,7 +70,54 @@
     "style": {
       "navigationBarTitleText": "浏览文本"
     }
-  }],
+  }, {
+	"path" : "pages/work/todaySupplierIndex/todaySupplierIndex",
+	"style" :                                                                                    
+		{
+			"navigationBarTitleText": "供货商当期订单综合信息",
+			"enablePullDownRefresh": true
+		}   
+  }, {
+	"path" : "pages/work/todaySupplierIndex/todaySupplierOrderIndex",
+	"style" :                                                                                    
+		{
+			"navigationBarTitleText": "供货商当期订单详细信息",
+			"enablePullDownRefresh": true
+		}   
+  }
+	,{
+		"path" : "pages/work/todaySupplierIndex/view-top/view-top",
+		"style" :                                                                                    
+		{
+			"navigationBarTitleText": "",
+			"enablePullDownRefresh": false
+		}
+		
+	}, {
+		"path" : "pages/work/todayCustomerIndex/todayCustomerIndex",
+		"style" :                                                                                    
+			{
+				"navigationBarTitleText": "客户当期订单综合信息",
+				"enablePullDownRefresh": true
+			}   
+	}, {
+		"path" : "pages/work/todayCustomerIndex/todayCustomerOrderIndex",
+		"style" :                                                                                    
+			{
+				"navigationBarTitleText": "客户当期订单详细信息",
+				"enablePullDownRefresh": true
+			}   
+	}
+	      ,{
+	          "path" : "pages/work/todayCustomerIndex/view-top/view-top",
+	          "style" :                                                                                    
+	          {
+	              "navigationBarTitleText": "",
+	              "enablePullDownRefresh": false
+	          }
+	          
+	      }
+    ],
   "tabBar": {
     "color": "#000000",
     "selectedColor": "#000000",

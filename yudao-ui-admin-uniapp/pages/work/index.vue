@@ -12,22 +12,22 @@
     </uni-swiper-dot>
 
     <!-- 宫格组件 -->
-    <uni-section title="今日综合信息" type="line"></uni-section>
+    <uni-section title="当期交易信息" type="line"></uni-section>
     <view class="grid-body">
-      <uni-grid :column="4" :showBorder="false" @change="changeGrid">
+      <uni-grid :column="4" :showBorder="false">
         <uni-grid-item>
-          <view class="grid-item-box">
+          <view class="grid-item-box"  @click="handleToTodaySupplierIndex">
             <uni-icons type="person-filled" size="30"></uni-icons>
-            <text class="text">上游订单</text>
+            <text class="text">供货商当期订单</text>
           </view>
         </uni-grid-item>
         <uni-grid-item>
-          <view class="grid-item-box">
+          <view class="grid-item-box" @click="handleToTodayCustomerIndex">
             <uni-icons type="staff-filled" size="30"></uni-icons>
-            <text class="text">下游订单</text>
+            <text class="text">客户当期订单</text>
           </view>
         </uni-grid-item>
-        <uni-grid-item>
+       <!-- <uni-grid-item>
           <view class="grid-item-box">
             <uni-icons type="color" size="30"></uni-icons>
             <text class="text">订单明细</text>
@@ -38,7 +38,7 @@
             <uni-icons type="settings-filled" size="30"></uni-icons>
             <text class="text">退单管理</text>
           </view>
-        </uni-grid-item>
+        </uni-grid-item> -->
         <!-- <uni-grid-item>
           <view class="grid-item-box">
             <uni-icons type="heart-filled" size="30"></uni-icons>
@@ -93,6 +93,12 @@
       }
     },
     methods: {
+	  handleToTodaySupplierIndex() {
+		this.$tab.navigateTo('/pages/work/todaySupplierIndex/todaySupplierIndex')
+	  },
+	  handleToTodayCustomerIndex() {
+		this.$tab.navigateTo('/pages/work/todayCustomerIndex/todayCustomerIndex')
+	  },
       clickBannerItem(item) {
         console.info(item)
       },

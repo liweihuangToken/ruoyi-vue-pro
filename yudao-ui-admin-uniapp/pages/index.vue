@@ -15,7 +15,7 @@
 			<uni-section title="状态跟踪" type="line" padding>
 				<uni-steps :options="list2" active-color="#007AFF" :active="active" direction="column" />
 			</uni-section>
-			<uni-section title="所属上游今日综合信息" type="line" padding class="uni-list-item__extra-text">
+			<uni-section title="所属供货商今日综合信息" type="line" padding class="uni-list-item__extra-text">
 				<uni-card title="结款信息" padding="10px 0" >
 					<uni-list>
 						<uni-list-item :show-extra-icon="true" :border="true" :extra-icon="extraIcon_fee" title="结款金额" :rightText="settlementAmont" />
@@ -31,14 +31,14 @@
 						<uni-list-item :border="false" title="无货订单数" :rightText="noPutStorageCount" />
 						<uni-list-item :border="false" title="待处理订单数" :rightText="untreatedCount" />
 						<uni-list-item :border="false" title="入库订单总额(付)" :rightText="putStorageOrderTotalAmont" />
-						<uni-list-item :show-extra-icon="true" showArrow :extra-icon="extraIcon_come" title="点击查看上游订单入库明细" />
+						<uni-list-item :show-extra-icon="true" showArrow :extra-icon="extraIcon_come" title="点击查看供货商订单入库明细" />
 					</uni-list>
 				</uni-card>
 				<uni-card title="退单信息" padding="10px 0" >
 					<uni-list>
 						<uni-list-item :border="false" title="退货订单总数" :rightText="retureOrderTotalCount" />
 						<uni-list-item :border="false" title="退货订单总额(收)" :rightText="retureOrderTotalAmont" />
-						<uni-list-item :show-extra-icon="true" showArrow :extra-icon="extraIcon_out" title="点击查看上游订单退货明细" />
+						<uni-list-item :show-extra-icon="true" showArrow :extra-icon="extraIcon_out" title="点击查看供货商订单退货明细" />
 					</uni-list>
 				</uni-card>
 			</uni-section>
